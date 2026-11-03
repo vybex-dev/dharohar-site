@@ -1,0 +1,53 @@
+[
+  {
+    "slug": "solanki-stepwell-silk",
+    "title": "Solanki Subterranean Art & Double-Ikat Silk",
+    "description": "Follow the sacred waters and silk looms of Patan in northern Gujarat: from the seven carved tiers and Vishnu avatar sculptures of Rani ki Vav to the generational Salvi weavers practicing double-ikat Patola silk.",
+    "era": "11th-12th Century (Solanki Dynasty)",
+    "tags": ["solanki", "stepwell", "unesco", "textile", "gujarat", "salvi"],
+    "color": "#5B21B6",
+    "site_slugs": [
+      "rani-ki-vav-patan",
+      "patan-patola-weaving"
+    ]
+  },
+  {
+    "slug": "rajasthan-stepwells-indigo",
+    "title": "Desert Water Architecture & Mud-Resist Indigo",
+    "description": "Traverse eastern Rajasthan connecting the dizzying 13-storey geometric staircases of Chand Baori at Abhaneri with the living communal mud-resist (dabu) and natural indigo printing courtyards of Bagru.",
+    "era": "8th-18th Century",
+    "tags": ["rajasthan", "stepwell", "craft", "indigo", "dabu", "water-architecture"],
+    "color": "#047857",
+    "site_slugs": [
+      "chand-baori-abhaneri",
+      "bagru-block-printing"
+    ]
+  },
+  {
+    "slug": "royal-forts-living-crafts",
+    "title": "Marwar Citadel to Jaipur Craft Enclave",
+    "description": "Cross the desert corridor between Jodhpur and Jaipur: marvel at the sheer cliff-top sandstone ramparts and jharokha latticework of Mehrangarh Fort, then witness the delicate hand-carved wooden block textile traditions of Bagru.",
+    "era": "15th-18th Century (Rathore & Kachhwaha)",
+    "tags": ["fort", "craft", "marwar", "jodhpur", "jaipur", "sandstone"],
+    "color": "#be123c",
+    "site_slugs": [
+      "mehrangarh-fort-jodhpur",
+      "bagru-block-printing"
+    ]
+  },
+  {
+    "slug": "western-india-heritage-grand-tour",
+    "title": "Western India Grand Cultural Circuit",
+    "description": "The definitive five-point heritage voyage across Rajasthan and Gujarat: descending into the geometric depths of Chand Baori, exploring Bagru's indigo vats, ascending Mehrangarh's bastions, learning Patan's mathematical silk weaving, and contemplating the inverted temple of Rani ki Vav.",
+    "era": "8th-15th Century",
+    "tags": ["grand-tour", "unesco", "stepwell", "fort", "textile", "rajasthan", "gujarat"],
+    "color": "#4338ca",
+    "site_slugs": [
+      "chand-baori-abhaneri",
+      "bagru-block-printing",
+      "mehrangarh-fort-jodhpur",
+      "patan-patola-weaving",
+      "rani-ki-vav-patan"
+    ]
+  }
+]

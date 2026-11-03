@@ -1,0 +1,149 @@
+[
+  {
+    "site_slug": "rani-ki-vav-patan",
+    "filename": "modhera-sanctum-360.jpg",
+    "title": "Rani ki Vav - Subterranean Pavilion 360°",
+    "caption": "Equirectangular view of the multi-tiered pillared gallery and sculpted Vishnu niches",
+    "hotspots": [
+      {
+        "id": "spot-rkv-1",
+        "pitch": -6.5,
+        "yaw": 18.0,
+        "title": "Sheshashayi Vishnu Relief",
+        "text": "Monumental high-relief carving of Lord Vishnu resting upon the serpent Shesha amidst celestial attendants.",
+        "category": "architecture"
+      },
+      {
+        "id": "spot-rkv-2",
+        "pitch": 8.0,
+        "yaw": -42.0,
+        "title": "Solanki Torana Columns",
+        "text": "Multi-tiered pillared pavilions featuring intricate geometric cusped arches characteristic of 11th-century Solanki craftsmanship.",
+        "category": "architecture"
+      },
+      {
+        "id": "spot-rkv-3",
+        "pitch": -22.0,
+        "yaw": 110.0,
+        "title": "Saraswati Aquifer Siphon",
+        "text": "Circular deep well shaft engineered to harness the underground subterranean water table of the Saraswati river basin.",
+        "category": "folklore"
+      },
+      {
+        "id": "spot-rkv-4",
+        "pitch": 4.0,
+        "yaw": -135.0,
+        "title": "Apsara & Nymph Friezes",
+        "text": "Intricately detailed figures of celestial dancers (apsaras) depicting daily adornment, beauty rituals, and classical dance poses.",
+        "category": "history"
+      },
+      {
+        "id": "spot-rkv-5",
+        "pitch": 12.0,
+        "yaw": 85.0,
+        "title": "Salvi Weavers Guild Heritage",
+        "text": "Historical records link the Solanki rulers of Rani ki Vav directly with royal patronage of the Salvi silk-weaving community in Patan.",
+        "category": "general",
+        "site_slug": "patan-patola-weaving"
+      }
+    ]
+  },
+  {
+    "site_slug": "chand-baori-abhaneri",
+    "filename": "chand-baori-360.jpg",
+    "title": "Chand Baori - Geometric Aquifer 360°",
+    "caption": "Panoramic 360 view from the central landing across 3,500 symmetrical steps",
+    "hotspots": [
+      {
+        "id": "spot-cb-1",
+        "pitch": -16.0,
+        "yaw": 2.0,
+        "title": "Triangular Step Geometry",
+        "text": "Over 3,500 narrow, perfectly chiseled steps arranged in hypnotic double-flight chevron formations descending 13 storeys.",
+        "category": "architecture"
+      },
+      {
+        "id": "spot-cb-2",
+        "pitch": 6.5,
+        "yaw": 68.0,
+        "title": "Subterranean Royal Jharokha",
+        "text": "Multi-level pillared pavilions and resting chambers reserved for royal ceremonies during scorching summer heatwaves.",
+        "category": "architecture"
+      },
+      {
+        "id": "spot-cb-3",
+        "pitch": 18.0,
+        "yaw": -72.0,
+        "title": "Harshat Mata Temple Vista",
+        "text": "Adjacent 8th-century sanctuary dedicated to Harshat Mata, deity of joy, uniting spiritual reverence with desert water conservation.",
+        "category": "folklore"
+      },
+      {
+        "id": "spot-cb-4",
+        "pitch": -8.0,
+        "yaw": 142.0,
+        "title": "Nikumbha Masonry Technology",
+        "text": "Interlocking dry-stone construction using dark porous volcanic basalt and local sandstone that kept pool waters cool year-round.",
+        "category": "history"
+      },
+      {
+        "id": "spot-cb-5",
+        "pitch": 10.0,
+        "yaw": -148.0,
+        "title": "Caravan Trade Route to Bagru",
+        "text": "Ancient desert caravan trails linked water stops like Abhaneri with the natural mud-resist indigo dyeing centers of Jaipur.",
+        "category": "general",
+        "site_slug": "bagru-block-printing"
+      }
+    ]
+  },
+  {
+    "site_slug": "mehrangarh-fort-jodhpur",
+    "filename": "mehrangarh-bastion-360.jpg",
+    "title": "Mehrangarh Fort - Citadel Ramparts 360°",
+    "caption": "High-altitude 360 panorama atop the towering battlements looking over the Blue City",
+    "hotspots": [
+      {
+        "id": "spot-mf-1",
+        "pitch": 11.0,
+        "yaw": -24.0,
+        "title": "Moti Mahal Pierced Screens",
+        "text": "The Pearl Palace features delicate stone lattice screens (jharokhas) and gilded ceiling motifs created by Marwar craftsmen.",
+        "category": "architecture"
+      },
+      {
+        "id": "spot-mf-2",
+        "pitch": -4.0,
+        "yaw": 46.0,
+        "title": "Loha Pol Citadel Gate",
+        "text": "The historic Iron Gate preserving the sacred vermilion impressions of royal consorts commemorating wartime sacrifice.",
+        "category": "history"
+      },
+      {
+        "id": "spot-mf-3",
+        "pitch": 15.0,
+        "yaw": 118.0,
+        "title": "Chamunda Devi Bastion",
+        "text": "Fortress deity temple installed by founder Rao Jodha in 1460, guarding the citadel's steepest volcanic rock cliff.",
+        "category": "folklore"
+      },
+      {
+        "id": "spot-mf-4",
+        "pitch": -12.0,
+        "yaw": -88.0,
+        "title": "Kilkila Cannon Battery",
+        "text": "Historic brass ordnance mounted along the upper ramparts commanding an unobstructed view across the Thar Desert horizon.",
+        "category": "general"
+      },
+      {
+        "id": "spot-mf-5",
+        "pitch": 3.0,
+        "yaw": 168.0,
+        "title": "Marwar Royal Textile Archives",
+        "text": "The palace treasury preserves invaluable double-ikat silk ceremonial robes commissioned from the master weavers of Patan.",
+        "category": "history",
+        "site_slug": "patan-patola-weaving"
+      }
+    ]
+  }
+]
