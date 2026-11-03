@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Map as MapLibreMap, Marker, Popup } from "maplibre-gl";
@@ -549,6 +550,11 @@ export default function HomePage() {
 
   const notes: string[] = [];
   const d = response?.data;
+  if (d?.interpreted_as) {
+    notes.push(
+      `Searching for: “${d.interpreted_as.topic_original}” → ${d.interpreted_as.topic_en}`,
+    );
+  }
   if (d?.place) {
     if (d.place.notFound)
       notes.push(
@@ -725,6 +731,7 @@ export default function HomePage() {
         onRetry={() => setRetryN((n) => n + 1)}
         notes={notes}
         emptyNote={d?.note ?? null}
+        interpretedAs={d?.interpreted_as ?? null}
         rows={rows}
         selectedId={selectedId}
         onSelect={(id) => selectSite(id, "list")}
@@ -745,6 +752,18 @@ export default function HomePage() {
           {error}
         </div>
       )}
+
+      {/* Floating Ask the Archive Button */}
+      <Link
+        href="/ask"
+        className="fixed bottom-6 right-6 z-20 flex items-center gap-2 rounded-full bg-amber-800 px-4 py-2.5 text-sm font-semibold text-white shadow-xl transition hover:bg-amber-900 hover:scale-105 active:scale-95 focus-visible:outline-2 focus-visible:outline-amber-700"
+        aria-label="Ask the archive"
+      >
+        <span className="text-base" role="img" aria-hidden="true">
+          📜
+        </span>
+        <span>Ask the Archive</span>
+      </Link>
     </main>
   );
 }

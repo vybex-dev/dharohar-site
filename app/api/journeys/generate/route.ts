@@ -549,7 +549,7 @@ export async function POST(req: Request) {
     if (eraFilter) searchFilters.era = eraFilter;
 
     // First attempt: with radius and filters
-    let { data: candidateRows, error: searchErr } = await db.rpc("search_sites", {
+    const { data: candidateRows, error: searchErr } = await db.rpc("search_sites", {
       query_embedding: queryEmbedding,
       query_text: theme,
       center: centerEwkt,
@@ -565,7 +565,7 @@ export async function POST(req: Request) {
       console.warn("[journey planner] search_sites error:", searchErr.message);
     }
 
-    let rows = (candidateRows ?? []) as Array<{
+    const rows = (candidateRows ?? []) as Array<{
       site_id: string;
       slug: string;
       name: string;

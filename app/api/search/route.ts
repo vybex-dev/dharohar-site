@@ -26,19 +26,24 @@ const MAX_RADIUS_KM = 500;
 const MATCH_COUNT = 20;
 
 type ParsedQuery = {
+  language: "en" | "hi" | "gu" | "other";
   topic: string;
+  topic_en: string;
+  topic_original: string;
   place: string | null;
   radius_km: number | null;
   era: string | null;
   type: string | null;
 };
 
-/** Safe fallback for when the LLM chain is unavailable, or parse_query
- *  somehow still throws after its own repair-retry: treat the whole raw
+/** Safe fallback for when the LLM chain is unavailable: treat the whole raw
  *  query as the topic, with no place/era/type/radius filters. */
 function fallbackParse(rawQuery: string): ParsedQuery {
   return {
+    language: "en",
     topic: rawQuery,
+    topic_en: rawQuery,
+    topic_original: rawQuery,
     place: null,
     radius_km: null,
     era: null,
@@ -56,10 +61,11 @@ async function parseSearchQuery(
   try {
     const r = await callLLM("parse_query", { query: rawQuery });
     return {
-      // callLLM already Zod-validates this against ParseQueryOutputSchema
-      // (with a repair-retry on bad JSON) before it ever reaches here.
       parsed: {
+        language: r.output.language,
         topic: r.output.topic,
+        topic_en: r.output.topic_en,
+        topic_original: r.output.topic_original,
         place: r.output.place,
         radius_km: r.output.radius_km,
         era: r.output.era,
@@ -110,39 +116,58 @@ export async function GET(req: Request) {
 
     const { parsed, usedFallback, parseError } =
       await parseSearchQuery(rawQuery);
-    const topic = parsed.topic.trim();
+
+    const topicEn = parsed.topic_en.trim();
+    const topicOriginal = parsed.topic_original.trim();
     const place = parsed.place?.trim() || null;
+    const isNonEnglish = parsed.language !== "en";
 
-    // CASE: no topic. If there's also no place, there's nothing structured
-    // to search on at all — fall back to the raw query as the topic so we
-    // always have SOME signal, rather than silently returning nothing. If
-    // there IS a place, an empty topic is meaningful ("show me everything
-    // near X") — don't substitute the raw query, that would re-introduce
-    // the place name as noise into the keyword/semantic search.
-    const effectiveTopic = topic || (!place ? rawQuery : "");
+    // Effective English topic for embedding + English FTS.
+    const effectiveTopicEn = topicEn || (!place ? rawQuery : "");
 
-    // Embed the topic (query-purpose embedding), unless there's no topic.
-    // Best-effort: embedding failure shouldn't take down keyword/geo search.
-    let queryEmbedding: string | null = null; // pgvector text literal: "[0.1,0.2,...]"
-    if (effectiveTopic) {
+    // For non-English queries, embed the original-script text as a second signal.
+    // Identical to topic_en in fallback/English paths — skip it to avoid duplicate work.
+    const effectiveTopicOriginal =
+      isNonEnglish && topicOriginal && topicOriginal !== topicEn
+        ? topicOriginal
+        : null;
+
+    // ── Embeddings (best-effort; failure degrades only semantic ranking) ──────
+    let queryEmbeddingEn: string | null = null;
+    let queryEmbeddingOrig: string | null = null;
+
+    if (effectiveTopicEn) {
       try {
         const er = await callLLM("embed", {
-          texts: [effectiveTopic],
+          texts: [effectiveTopicEn],
           purpose: "query",
         });
-        queryEmbedding = JSON.stringify(er.output.vectors[0]);
+        queryEmbeddingEn = JSON.stringify(er.output.vectors[0]);
       } catch (e) {
         console.warn(
-          "[search] embedding failed, continuing without semantic ranking:",
+          "[search] English embedding failed, continuing without semantic ranking:",
           errorMessage(e),
         );
       }
     }
 
-    // CASE: a place was named. Geocode it — also best-effort: a geocoding
-    // failure or an unresolvable place shouldn't take down a search that
-    // still has a usable topic.
-    let center: string | null = null; // EWKT text: "SRID=4326;POINT(lng lat)"
+    if (effectiveTopicOriginal) {
+      try {
+        const er = await callLLM("embed", {
+          texts: [effectiveTopicOriginal],
+          purpose: "query",
+        });
+        queryEmbeddingOrig = JSON.stringify(er.output.vectors[0]);
+      } catch (e) {
+        console.warn(
+          "[search] Original-script embedding failed, skipping secondary semantic signal:",
+          errorMessage(e),
+        );
+      }
+    }
+
+    // ── Geocode place (best-effort) ──────────────────────────────────────────
+    let center: string | null = null;
     let radiusM: number | null = null;
     let placeResolved: string | null = null;
     let placeNotFound = false;
@@ -171,26 +196,22 @@ export async function GET(req: Request) {
     if (parsed.type && uiTypes.length === 0) filters.type = parsed.type;
     if (parsed.era && uiEras.length === 0) filters.era = parsed.era;
 
-    // CASE: nothing at all to search on (empty topic, no place, no filters —
-    // e.g. parsing failed AND the raw query was itself empty-ish after
-    // trimming, which QuerySchema should already reject, but belt-and-braces).
-    // Don't call search_sites with every arg null — it would correctly
-    // return zero rows, but that reads as a confusing "no results" for what
-    // is really an empty query.
-    if (!effectiveTopic && !center && Object.keys(filters).length === 0) {
+    if (!effectiveTopicEn && !effectiveTopicOriginal && !center && Object.keys(filters).length === 0) {
       return NextResponse.json({
         ok: true,
         query: rawQuery,
         parsed,
         usedFallback,
+        interpreted_as: null,
         results: [],
         note: "Nothing to search on — try naming a place, a topic, or both.",
       });
     }
 
-    const { data, error } = await db.rpc("search_sites", {
-      query_embedding: queryEmbedding,
-      query_text: effectiveTopic || null,
+    // ── Primary search: English embedding + English FTS ───────────────────────
+    const { data: dataEn, error: errorEn } = await db.rpc("search_sites", {
+      query_embedding: queryEmbeddingEn,
+      query_text: effectiveTopicEn || null,
       center,
       radius_m: radiusM,
       filters,
@@ -199,9 +220,55 @@ export async function GET(req: Request) {
       filter_crafts: uiCrafts.length > 0 ? uiCrafts : null,
       filter_eras: uiEras.length > 0 ? uiEras : null,
     });
-    if (error) throw new Error(`Search failed: ${error.message}`);
+    if (errorEn) throw new Error(`Search failed: ${errorEn.message}`);
 
-    const results = (data ?? []) as SiteResultRow[];
+    const resultsEn = (dataEn ?? []) as SiteResultRow[];
+
+    // ── Secondary search: original-script RPC (additive for non-English) ─────
+    let mergedResults = resultsEn;
+
+    if (isNonEnglish && (queryEmbeddingOrig || topicOriginal)) {
+      try {
+        const { data: dataOrig } = await db.rpc("search_sites_multilingual", {
+          query_embedding: queryEmbeddingOrig,
+          query_text_original: topicOriginal || null,
+          center,
+          radius_m: radiusM,
+          filters,
+          match_count: MATCH_COUNT,
+          filter_types: uiTypes.length > 0 ? uiTypes : null,
+          filter_crafts: uiCrafts.length > 0 ? uiCrafts : null,
+          filter_eras: uiEras.length > 0 ? uiEras : null,
+        });
+
+        if (Array.isArray(dataOrig) && dataOrig.length > 0) {
+          const seenIds = new Set(resultsEn.map((r) => r.site_id));
+          const newRows = (dataOrig as SiteResultRow[]).filter(
+            (r) => !seenIds.has(r.site_id),
+          );
+          if (newRows.length > 0) {
+            mergedResults = [...resultsEn, ...newRows].sort(
+              (a, b) => (b.score ?? 0) - (a.score ?? 0),
+            );
+          }
+        }
+      } catch (e) {
+        // Non-fatal: original-script search is additive
+        console.warn("[search] original-script secondary search failed:", errorMessage(e));
+      }
+    }
+
+    const results = mergedResults.slice(0, MATCH_COUNT);
+
+    // ── interpreted_as: what the engine understood ────────────────────────────
+    const interpretedAs =
+      isNonEnglish && topicEn && topicEn !== rawQuery
+        ? {
+            language: parsed.language,
+            topic_en: topicEn,
+            topic_original: topicOriginal || rawQuery,
+          }
+        : null;
 
     return NextResponse.json({
       ok: true,
@@ -209,6 +276,7 @@ export async function GET(req: Request) {
       parsed,
       usedFallback,
       parseError: usedFallback ? parseError : undefined,
+      interpreted_as: interpretedAs,
       place: place
         ? {
             requested: place,
@@ -218,7 +286,6 @@ export async function GET(req: Request) {
           }
         : null,
       results,
-      // CASE: no results.
       ...(results.length === 0
         ? {
             note: "No matching heritage records found. Try a broader area, a different topic, or fewer filters.",

@@ -3,6 +3,8 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  /* Noto Indic fonts loaded via Google Fonts in layout.tsx */
+  --font-noto-indic: "Noto Sans Devanagari", "Noto Sans Gujarati";
 }
 
 @media (prefers-color-scheme: dark) {
@@ -16,6 +18,15 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+/* ---- Indic script rendering: apply Noto fonts wherever lang="hi" or lang="gu" ---- */
+/* This ensures Devanagari and Gujarati text displays correctly in search results,
+   citations, site names, and the "Searching for:" translation chip. */
+[lang="hi"],
+[lang="gu"],
+.font-indic {
+  font-family: var(--font-noto-indic), system-ui, sans-serif;
 }
 
 /* ---- map pins (app/page.tsx builds these as DOM nodes) ---- */

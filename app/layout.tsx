@@ -1,4 +1,5 @@
-// Simplified layout – system fonts only for reliable builds.
+// Simplified layout – system fonts only for reliable builds, with Google Fonts
+// loaded at runtime for Devanagari/Gujarati script rendering.
 import type { Metadata } from "next";
 import { ReactNode } from "react";
 import "./globals.css";
@@ -12,15 +13,28 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className="h-full antialiased">
-      {/* React 19 hoists <link> elements from the body into <head> automatically.
-          We load maplibre-gl CSS this way to bypass Turbopack's CSS bundler which
-          has a known bug where it appends a double ".css" extension to paths from
-          node_modules when processed through a custom turbopack rule. */}
-      {/* eslint-disable-next-line @next/next/no-head-element */}
+      {/* React 19 / App Router: explicit <head> keeps preconnects and stylesheet tags
+          co-located. maplibre-gl.css and Google Fonts are loaded as raw <link> tags
+          to bypass Turbopack's CSS bundler (known issue with node_modules CSS paths). */}
       <head>
+        {/* eslint-disable-next-line @next/next/no-css-tags -- maplibre-gl.css cannot be bundled by next/font; must be a raw CSS tag */}
         <link
           rel="stylesheet"
           href="/maplibre-gl.css"
+          precedence="default"
+        />
+        {/* Noto Sans for Devanagari (Hindi) and Gujarati script rendering.
+            Loaded via <link> rather than next/font to avoid Turbopack CSS pipeline issues. */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wdth,wght@62.5..100,100..900&family=Noto+Sans+Gujarati:wdth,wght@62.5..100,100..900&display=swap"
           precedence="default"
         />
       </head>
