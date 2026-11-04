@@ -43,7 +43,7 @@ export default function RootError({
           Try again
         </button>
         <Link
-          href="/"
+          href="/atlas"
           className="rounded-lg bg-[#5B21B6] px-5 py-2.5 text-sm font-semibold text-white shadow hover:bg-[#4C1D95] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8B5CF6]"
         >
           Return to Heritage Map

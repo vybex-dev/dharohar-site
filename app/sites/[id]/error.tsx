@@ -30,7 +30,7 @@ export default function SiteError({
           Try again
         </button>
         <Link
-          href="/"
+          href="/atlas"
           className="rounded bg-[#5B21B6] px-4 py-2 text-sm font-medium text-white hover:bg-[#4C1D95]"
         >
           Back to the map

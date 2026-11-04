@@ -484,7 +484,7 @@ export default function NewJourneyPage() {
         throw new Error(data.error || "Failed to save journey");
       }
 
-      router.push(`/?journey=${data.journey.slug}`);
+      router.push(`/atlas?journey=${data.journey.slug}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -569,7 +569,7 @@ export default function NewJourneyPage() {
         throw new Error(data.error ?? `Failed to save journey (HTTP ${res.status})`);
       }
 
-      router.push(`/?journey=${data.journey.slug}`);
+      router.push(`/atlas?journey=${data.journey.slug}`);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -585,7 +585,7 @@ export default function NewJourneyPage() {
         <div className="border-b border-[#EDE9FE] px-6 py-4">
           <nav aria-label="Breadcrumb" className="mb-1 text-xs">
             <Link
-              href="/"
+              href="/atlas"
               className="font-medium text-[#5B21B6] underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-[#8B5CF6]"
             >
               ← Back to Atlas

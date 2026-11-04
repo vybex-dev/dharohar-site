@@ -72,7 +72,7 @@ export default function SiteMapSnippet({
           {lat.toFixed(4)}, {lng.toFixed(4)}
         </span>
         <Link
-          href={`/?site=${id}`}
+          href={`/atlas?site=${id}`}
           className="font-medium text-[#5B21B6] underline-offset-2 hover:underline"
         >
           Open on the full map →

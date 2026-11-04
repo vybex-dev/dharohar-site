@@ -145,7 +145,7 @@ export default function AskPage() {
         <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3 sm:px-6">
           <div className="flex items-center gap-4">
             <Link
-              href="/"
+              href="/atlas"
               className="text-sm font-medium text-[#5B21B6] underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-[#8B5CF6]"
             >
               ← Back to Atlas Map

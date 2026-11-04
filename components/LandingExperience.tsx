@@ -44,14 +44,14 @@ const FEATURES = [
     icon: "🗺️",
     title: "Interactive Atlas",
     text: "Every site, craft and document pinned on a free vector map. Zoom from Gujarat to a single stepwell.",
-    href: "/",
+    href: "/atlas",
     cta: "Open the atlas",
   },
   {
     icon: "🔎",
     title: "Multilingual Search",
     text: "Ask in English, हिन्दी or ગુજરાતી. Semantic, keyword and location search are blended into one ranked answer.",
-    href: "/",
+    href: "/atlas",
     cta: "Try a search",
   },
   {
@@ -72,7 +72,7 @@ const FEATURES = [
     icon: "🌐",
     title: "360° Tours",
     text: "Step inside spherical panoramas with hotspots that link to inscriptions and notes.",
-    href: "/",
+    href: "/atlas",
     cta: "Explore sites",
   },
   {
@@ -176,7 +176,7 @@ export default function LandingExperience() {
       {/* ---------------- Nav ---------------- */}
       <header className="dhl-nav">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
-          <Link href="/welcome" className="flex items-center gap-2" aria-label="Dharohar home">
+          <Link href="/" className="flex items-center gap-2" aria-label="Dharohar home">
             <span className="dhl-logo">DH</span>
             <span className="font-serif text-lg font-bold tracking-tight text-[#5B21B6]">
               Dharohar
@@ -188,7 +188,7 @@ export default function LandingExperience() {
             <a href="#features" className="hover:text-[#5B21B6]">Features</a>
           </nav>
           <Link
-            href="/"
+            href="/atlas"
             className="rounded-full bg-[#5B21B6] px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-[#5B21B6]/25 transition hover:bg-[#4C1D95] hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-[#8B5CF6]"
           >
             Enter the Atlas →
@@ -219,7 +219,7 @@ export default function LandingExperience() {
               anyone ask them questions, in their own language.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/" className="dhl-btn dhl-btn-primary">
+              <Link href="/atlas" className="dhl-btn dhl-btn-primary">
                 Explore the Atlas
               </Link>
               <Link href="/ask" className="dhl-btn dhl-btn-ghost">
@@ -420,7 +420,7 @@ export default function LandingExperience() {
             inscription in translation.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link href="/" className="dhl-btn dhl-btn-light">Open the Atlas Map</Link>
+            <Link href="/atlas" className="dhl-btn dhl-btn-light">Open the Atlas Map</Link>
             <Link href="/upload" className="dhl-btn dhl-btn-outline-light">Contribute a record</Link>
           </div>
         </div>

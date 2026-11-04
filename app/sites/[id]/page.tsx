@@ -37,7 +37,7 @@ async function SiteContent({ params }: { params: Promise<{ id: string }> }) {
       <title>{`${site.name_en} · Dharohar`}</title>
       <nav aria-label="Breadcrumb" className="mb-4 text-sm">
         <Link
-          href={`/?site=${site.id}`}
+          href={`/atlas?site=${site.id}`}
           className="font-medium text-[#5B21B6] underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-[#8B5CF6]"
         >
           ← Back to the map

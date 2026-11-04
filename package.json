@@ -1,6 +1,7 @@
 {
   "name": "dharohar",
   "version": "0.1.0",
+  "license": "MIT",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,7 +10,7 @@
     "lint": "eslint",
     "reembed": "NODE_OPTIONS='--conditions=react-server' tsx --env-file=.env.local scripts/reembed-all.ts",
     "seed": "NODE_OPTIONS='--conditions=react-server' tsx --env-file=.env.local scripts/seed.ts",
-    "postinstall": "mkdir -p public && cp node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs node_modules/maplibre-gl/dist/maplibre-gl-shared.mjs public/"
+    "postinstall": "mkdir -p public && cp node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs node_modules/maplibre-gl/dist/maplibre-gl-shared.mjs node_modules/maplibre-gl/dist/maplibre-gl.css public/"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.109.0",

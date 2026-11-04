@@ -313,7 +313,7 @@ export default function UploadPage() {
         {/* Header Breadcrumb */}
         <div className="mb-6 flex items-center justify-between">
           <Link
-            href="/"
+            href="/atlas"
             className="inline-flex items-center gap-1.5 text-sm font-medium text-[#5B21B6] underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-[#8B5CF6]"
           >
             ← Back to Atlas Map
@@ -568,7 +568,7 @@ export default function UploadPage() {
                   <div className="flex items-center gap-4 text-xs font-semibold pt-1">
                     {publishInfo?.published !== false && (
                       <Link
-                        href={job?.site_id ? `/?site=${job.site_id}` : "/"}
+                        href={job?.site_id ? `/atlas?site=${job.site_id}` : "/atlas"}
                         className="rounded-lg bg-[#5B21B6] px-3.5 py-1.5 text-white hover:bg-[#4C1D95]"
                       >
                         View on Map →

@@ -8,7 +8,7 @@ export default function SiteNotFound() {
         This record doesn’t exist, or it hasn’t been published yet.
       </p>
       <Link
-        href="/"
+        href="/atlas"
         className="mt-6 rounded bg-[#5B21B6] px-4 py-2 text-sm font-medium text-white hover:bg-[#4C1D95]"
       >
         Back to the map
