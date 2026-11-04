@@ -84,7 +84,34 @@ const FEATURES = [
   },
 ];
 
-const STEP_LAYERS = 9;
+const HERO_SITES = [
+  {
+    name: "Rani ki Vav",
+    place: "Patan, Gujarat",
+    img: "https://upload.wikimedia.org/wikipedia/commons/3/36/Rani_ki_vav_-_Gujarat_-_06.jpg",
+  },
+  {
+    name: "Chand Baori",
+    place: "Abhaneri, Rajasthan",
+    img: "https://upload.wikimedia.org/wikipedia/commons/e/ee/ChandBaori.jpg",
+  },
+  {
+    name: "Mehrangarh Fort",
+    place: "Jodhpur, Rajasthan",
+    img: "https://upload.wikimedia.org/wikipedia/commons/5/5b/Mehrangarh_Fort.jpg",
+  },
+  {
+    name: "Bagru Block Printing",
+    place: "Jaipur, Rajasthan",
+    img: "https://upload.wikimedia.org/wikipedia/commons/d/dc/Woman_doing_Block_Printing_at_Bagru_village%2C_Jaipur%2C_India.jpg",
+  },
+  {
+    name: "Patan Patola Weaving",
+    place: "Patan, Gujarat",
+    img: "https://upload.wikimedia.org/wikipedia/commons/e/e1/Antique_Patan_Patola_Double_Ikat_Trade_Textile_courtesy_Wovensouls_Collection%2C_Singapore.jpg",
+  },
+];
+
 
 /* ------------------------------------------------------------------ */
 /* Component                                                           */
@@ -240,32 +267,40 @@ export default function LandingExperience() {
             </dl>
           </div>
 
-          {/* 3D stepwell */}
+          {/* 3D heritage carousel */}
           <div className="dhl-scene" aria-hidden="true">
             <div ref={stageRef} className="dhl-stage">
-              <div className="dhl-well">
-                {Array.from({ length: STEP_LAYERS }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="dhl-step"
-                    style={
-                      {
-                        "--i": i,
-                        "--size": `${100 - i * 10.5}%`,
-                      } as React.CSSProperties
-                    }
-                  />
-                ))}
-                <div className="dhl-water" />
+              <div className="dhl-tilt3d">
+                <div className="dhl-ring">
+                  {HERO_SITES.map((h, i) => (
+                    <figure
+                      key={h.name}
+                      className="dhl-photo"
+                      style={{ "--a": `${(360 / HERO_SITES.length) * i}deg` } as React.CSSProperties}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={h.img}
+                        alt=""
+                        loading="eager"
+                        decoding="async"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                        }}
+                      />
+                      <figcaption>
+                        <strong>{h.name}</strong>
+                        <span>{h.place}</span>
+                      </figcaption>
+                    </figure>
+                  ))}
+                </div>
+                <div className="dhl-floor" />
               </div>
-
               <span className="dhl-float dhl-float-1 font-indic" lang="hi">धरोहर</span>
               <span className="dhl-float dhl-float-2 font-indic" lang="gu">ધરોહર</span>
-              <span className="dhl-float dhl-float-3">📜</span>
-              <span className="dhl-float dhl-float-4">🏛️</span>
-              <span className="dhl-float dhl-float-5">🧵</span>
             </div>
-            <p className="dhl-caption">Chand Baori, Abhaneri · 3,500 steps, 13 storeys</p>
+            <p className="dhl-caption">Real records from the atlas · hover to pause</p>
           </div>
         </div>
 
@@ -287,7 +322,7 @@ export default function LandingExperience() {
           </p>
         </div>
 
-        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4" style={{ perspective: 1200 }}>
+        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {PROBLEMS.map((p, i) => (
             <article
               key={p.title}
@@ -298,8 +333,8 @@ export default function LandingExperience() {
               onPointerLeave={tiltLeave}
             >
               <div className="dhl-card-inner">
-                <div className="dhl-icon" style={{ transform: "translateZ(40px)" }}>{p.icon}</div>
-                <h3 className="mt-4 font-serif text-lg font-bold" style={{ transform: "translateZ(24px)" }}>
+                <div className="dhl-icon">{p.icon}</div>
+                <h3 className="mt-4 font-serif text-lg font-bold">
                   {p.title}
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-[#1E1B4B]/70">{p.text}</p>
@@ -366,7 +401,7 @@ export default function LandingExperience() {
             </h2>
           </div>
 
-          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" style={{ perspective: 1400 }}>
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {FEATURES.map((f, i) => (
               <Link
                 key={f.title}
@@ -378,12 +413,12 @@ export default function LandingExperience() {
                 onPointerLeave={tiltLeave}
               >
                 <div className="dhl-card-inner">
-                  <div className="dhl-icon" style={{ transform: "translateZ(50px)" }}>{f.icon}</div>
-                  <h3 className="mt-4 font-serif text-xl font-bold" style={{ transform: "translateZ(30px)" }}>
+                  <div className="dhl-icon">{f.icon}</div>
+                  <h3 className="mt-4 font-serif text-xl font-bold">
                     {f.title}
                   </h3>
                   <p className="mt-2 text-sm leading-relaxed text-[#1E1B4B]/70">{f.text}</p>
-                  <span className="mt-4 inline-block text-sm font-semibold text-[#5B21B6]" style={{ transform: "translateZ(20px)" }}>
+                  <span className="mt-4 inline-block text-sm font-semibold text-[#5B21B6]">
                     {f.cta} →
                   </span>
                 </div>
@@ -470,31 +505,31 @@ const CSS = `
 
 .dhl-stat { padding:10px 6px; border-radius:14px; background:rgba(255,255,255,.7); border:1px solid #EDE9FE; }
 
-/* 3D stepwell */
+/* 3D heritage carousel */
 .dhl-scene { position:relative; display:flex; flex-direction:column; align-items:center; }
-.dhl-stage { --mx:0; --my:0; --sy:0; position:relative; width:min(460px,86vw); aspect-ratio:1; perspective:1100px; }
-.dhl-well { position:absolute; inset:6%; transform-style:preserve-3d;
-  transform: rotateX(calc(58deg + var(--my) * -8deg + var(--sy) * 12deg)) rotateZ(calc(var(--mx) * 14deg)) ;
-  animation: dhl-spin 38s linear infinite; }
-@keyframes dhl-spin { from { rotate: 0deg; } to { rotate: 360deg; } }
-.dhl-step { position:absolute; left:50%; top:50%; width:var(--size); height:var(--size); aspect-ratio:1;
-  transform: translate(-50%,-50%) translateZ(calc(var(--i) * -26px));
-  border-radius: 6px; border: 2px solid rgba(91,33,182, calc(.95 - var(--i) * .07));
-  background: linear-gradient(135deg, rgba(237,233,254, calc(.95 - var(--i) * .06)), rgba(199,179,255, calc(.55 - var(--i) * .04)));
-  box-shadow: 0 0 0 3px rgba(139,92,246,.12), inset 0 0 22px rgba(91,33,182,.14), 0 18px 30px rgba(91,33,182,.12); }
-.dhl-water { position:absolute; left:50%; top:50%; width:12%; height:12%; transform: translate(-50%,-50%) translateZ(calc(${STEP_LAYERS} * -26px));
-  border-radius:50%; background: radial-gradient(circle,#fff 0%,#8B5CF6 45%,#5B21B6 100%); box-shadow: 0 0 40px 12px rgba(139,92,246,.7); animation: dhl-pulse 3s ease-in-out infinite; }
-@keyframes dhl-pulse { 50% { box-shadow: 0 0 60px 22px rgba(139,92,246,.9); } }
+.dhl-stage { --mx:0; --my:0; --sy:0; position:relative; width:min(520px,92vw); height:430px; perspective:1500px; }
+.dhl-tilt3d { position:absolute; inset:0; transform-style:preserve-3d;
+  transform: rotateX(calc(-9deg + var(--my) * -6deg + var(--sy) * 8deg)) rotateY(calc(var(--mx) * 10deg)); }
+.dhl-ring { position:absolute; left:50%; top:46%; width:0; height:0; transform-style:preserve-3d; animation: dhl-ring 36s linear infinite; }
+.dhl-stage:hover .dhl-ring { animation-play-state: paused; }
+@keyframes dhl-ring { from { transform: rotateY(0deg); } to { transform: rotateY(-360deg); } }
+.dhl-photo { position:absolute; left:-85px; top:-115px; width:170px; height:230px; margin:0; overflow:hidden; border-radius:16px; background: linear-gradient(135deg,#EDE9FE,#C7B3FF);
+  border:3px solid #fff; box-shadow: 0 20px 40px rgba(59,7,100,.28); backface-visibility:hidden; -webkit-backface-visibility:hidden;
+  transform: rotateY(var(--a)) translateZ(250px); }
+.dhl-photo img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.dhl-photo figcaption { position:absolute; left:0; right:0; bottom:0; padding:26px 10px 9px; display:flex; flex-direction:column; gap:1px; text-align:left;
+  background: linear-gradient(to top, rgba(30,27,75,.92), rgba(30,27,75,0)); color:#fff; }
+.dhl-photo figcaption strong { font-size:13px; font-weight:700; line-height:1.2; }
+.dhl-photo figcaption span { font-size:10.5px; color:#DDD3FF; }
+.dhl-floor { position:absolute; left:50%; top:78%; width:560px; height:560px; margin:-280px 0 0 -280px; border-radius:50%;
+  transform: rotateX(90deg); background: radial-gradient(circle, rgba(139,92,246,.45) 0%, rgba(139,92,246,.18) 45%, transparent 70%); border:2px solid rgba(91,33,182,.18); }
 
-.dhl-float { position:absolute; display:flex; align-items:center; justify-content:center; padding:10px 14px; border-radius:16px; background:rgba(255,255,255,.92); border:1px solid #C7B3FF; box-shadow: 0 14px 30px rgba(91,33,182,.22); font-size:22px; font-weight:700; color:#5B21B6;
+.dhl-float { position:absolute; z-index:5; display:flex; align-items:center; justify-content:center; padding:10px 14px; border-radius:16px; background:rgba(255,255,255,.95); border:1px solid #C7B3FF; box-shadow: 0 14px 30px rgba(91,33,182,.22); font-size:22px; font-weight:700; color:#5B21B6;
   transform: translate3d(calc(var(--mx) * var(--d,18px)), calc(var(--my) * var(--d,18px)), 0); animation: dhl-bob 6s ease-in-out infinite; }
-@keyframes dhl-bob { 50% { translate: 0 -14px; } }
-.dhl-float-1 { top:2%; left:4%; --d:34px; }
-.dhl-float-2 { bottom:12%; right:0; --d:-30px; animation-delay:-2s; }
-.dhl-float-3 { top:14%; right:6%; --d:-22px; animation-delay:-1s; font-size:28px; }
-.dhl-float-4 { bottom:6%; left:8%; --d:26px; animation-delay:-3s; font-size:28px; }
-.dhl-float-5 { top:46%; left:-2%; --d:40px; animation-delay:-4s; font-size:26px; }
-.dhl-caption { margin-top:6px; font-size:12px; color:rgba(30,27,75,.55); text-align:center; }
+@keyframes dhl-bob { 50% { translate: 0 -12px; } }
+.dhl-float-1 { top:0; left:2%; --d:30px; }
+.dhl-float-2 { bottom:8%; right:2%; --d:-26px; animation-delay:-2s; }
+.dhl-caption { margin-top:8px; font-size:12px; color:rgba(30,27,75,.55); text-align:center; }
 
 .dhl-scroll { position:absolute; left:50%; bottom:22px; transform:translateX(-50%); width:22px; height:36px; border:2px solid #8B5CF6; border-radius:14px; opacity:.6; }
 .dhl-scroll span { position:absolute; left:50%; top:6px; width:4px; height:7px; margin-left:-2px; border-radius:2px; background:#5B21B6; animation: dhl-wheel 1.8s ease-in-out infinite; }
@@ -510,16 +545,17 @@ const CSS = `
 /* 3D tilt cards */
 .dhl-tilt { --rx:0deg; --ry:0deg; --gx:50%; --gy:50%; }
 .dhl-card { position:relative; display:block; border-radius:20px; background:#fff; border:1px solid #E4DBFF; box-shadow: 0 10px 30px rgba(91,33,182,.08);
-  transform: perspective(900px) rotateX(var(--rx)) rotateY(var(--ry)); transform-style:preserve-3d; transition: box-shadow .25s ease, transform .15s ease-out, opacity .7s ease; }
+  transform: perspective(900px) rotateX(var(--rx)) rotateY(var(--ry)); transition: box-shadow .25s ease, transform .15s ease-out, opacity .7s ease; }
 .dhl-card.is-in:hover { box-shadow: 0 24px 48px rgba(91,33,182,.22); }
-.dhl-card-inner { padding:24px; transform-style:preserve-3d; }
+.dhl-card-inner { padding:24px; text-align:left; }
 .dhl-card .dhl-icon { display:inline-flex; width:52px; height:52px; align-items:center; justify-content:center; border-radius:16px; background:linear-gradient(135deg,#EDE9FE,#C7B3FF); font-size:26px; box-shadow: 0 8px 18px rgba(91,33,182,.2); }
 .dhl-sheen { position:absolute; inset:0; border-radius:20px; pointer-events:none; opacity:0; transition:opacity .25s; background: radial-gradient(260px circle at var(--gx) var(--gy), rgba(139,92,246,.18), transparent 60%); }
 .dhl-feature:hover .dhl-sheen { opacity:1; }
 
 /* Mission & CTA bands */
 .dhl-mission, .dhl-cta { position:relative; background: linear-gradient(135deg,#3B0764 0%,#5B21B6 55%,#8B5CF6 100%); overflow:hidden; }
-.dhl-mission::before, .dhl-cta::before { content:""; position:absolute; inset:-40%; background: repeating-conic-gradient(from 0deg at 50% 50%, rgba(255,255,255,.05) 0 10deg, transparent 10deg 20deg); animation: dhl-spin 120s linear infinite; }
+.dhl-mission::before, .dhl-cta::before { content:""; position:absolute; inset:-40%; background: repeating-conic-gradient(from 0deg at 50% 50%, rgba(255,255,255,.05) 0 10deg, transparent 10deg 20deg); animation: dhl-band 120s linear infinite; }
+@keyframes dhl-band { to { transform: rotate(360deg); } }
 .dhl-mission > *, .dhl-cta > * { position:relative; }
 
 /* Timeline */
@@ -532,10 +568,9 @@ const CSS = `
 .dhl-features { background: linear-gradient(180deg,#FAF9FF 0%,#EDE9FE 100%); }
 .dhl-trust { display:flex; gap:20px; align-items:flex-start; padding:28px; border-radius:22px; background:#fff; border:1px solid #C7B3FF; box-shadow: 0 16px 40px rgba(91,33,182,.1); }
 
-@media (max-width: 640px) { .dhl-float-5 { display:none; } }
+@media (max-width: 640px) { .dhl-stage { height:360px; } .dhl-photo { transform: rotateY(var(--a)) translateZ(200px); } }
 @media (prefers-reduced-motion: reduce) {
   .dhl *, .dhl *::before, .dhl *::after { animation: none !important; transition: none !important; }
   .dhl-reveal { opacity:1; transform:none; }
-  .dhl-well { transform: rotateX(58deg); }
 }
 `;
