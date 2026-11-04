@@ -38,6 +38,9 @@ declare global {
 
 export default function PanoramaViewer({ panorama, siteName }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
+  // Pannellum mounts into this host. React never renders children inside it, so the
+  // third-party library can freely add/remove DOM nodes without breaking React.
+  const panoHostRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [activeSpot, setActiveSpot] = useState<PanoramaHotspot | null>(
     panorama.hotspots[0] ?? null,
@@ -106,19 +109,15 @@ export default function PanoramaViewer({ panorama, siteName }: Props) {
 
   // Initialize Pannellum if available
   useEffect(() => {
-    if (!pannellumReady || !window.pannellum || !containerRef.current) return;
+    const host = panoHostRef.current;
+    if (!pannellumReady || !window.pannellum || !host) return;
 
-    const panoId = `pano-box-${panorama.id}`;
-    let el = document.getElementById(panoId);
-    if (!el && containerRef.current) {
-      el = document.createElement("div");
-      el.id = panoId;
-      el.style.width = "100%";
-      el.style.height = "100%";
-      containerRef.current.innerHTML = "";
-      containerRef.current.appendChild(el);
-    }
-    if (!el) return;
+    host.textContent = "";
+    const el = document.createElement("div");
+    el.id = `pano-box-${panorama.id}`;
+    el.style.width = "100%";
+    el.style.height = "100%";
+    host.appendChild(el);
 
     try {
       const viewer = window.pannellum.viewer(el, {
@@ -150,6 +149,7 @@ export default function PanoramaViewer({ panorama, siteName }: Props) {
         } catch {
           // ignore cleanup errors
         }
+        host.textContent = "";
         viewerInstanceRef.current = null;
       };
     } catch (err) {
@@ -415,6 +415,8 @@ export default function PanoramaViewer({ panorama, siteName }: Props) {
         aria-label="360 Panorama Viewer. Focus and use arrow keys to pan, plus and minus keys to zoom."
         className="group relative h-[380px] w-full overflow-hidden rounded-xl bg-stone-900 text-white shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8B5CF6] sm:h-[460px]"
       >
+        <div ref={panoHostRef} className="absolute inset-0" />
+
         {/* Loading Indicator */}
         {loading && (
           <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-stone-900/80 backdrop-blur-sm">
