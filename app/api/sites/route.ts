@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { eraBucket } from "@/lib/facets";
 import { errorMessage } from "@/lib/http";
 import { getServerSupabase } from "@/lib/supabase-server";
+import { getCuratedSite } from "@/lib/curated-data";
 
 const THUMB_TTL_SECONDS = 3600;
 const SUMMARY_MAX_CHARS = 280;
@@ -32,6 +33,7 @@ export async function GET() {
     const db = getServerSupabase();
 
     // Service role bypasses RLS, so the published filter is explicit.
+    // Note: stub/test sites are filtered client-side to keep map pins for journey endpoints.
     const { data: siteData, error: siteErr } = await db
       .from("sites_geo")
       .select(
@@ -110,9 +112,9 @@ export async function GET() {
           crafts: s.crafts ?? [],
           lat: s.lat,
           lng: s.lng,
-          thumbnail_url: photo
-            ? (urlByKey.get(`${photo.bucket}/${photo.path}`) ?? null)
-            : null,
+          thumbnail_url:
+            (photo ? (urlByKey.get(`${photo.bucket}/${photo.path}`) ?? null) : null) ||
+            getCuratedSite(s.slug, s.category, s.name_en).thumbnail,
         };
       }),
     });

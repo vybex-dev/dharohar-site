@@ -22,6 +22,7 @@ import {
   type SiteDto,
 } from "@/lib/facets";
 import { buildStyle, workerUrl } from "@/lib/map-style";
+import { getRoadRouteGeometry } from "@/lib/road-routing";
 
 type MapLibre = typeof import("maplibre-gl");
 type SitesResponse = { ok: boolean; sites?: SiteDto[]; error?: string };
@@ -55,9 +56,10 @@ function buildPopupContent(
     root.appendChild(img);
   } else {
     const ph = document.createElement("div");
-    ph.textContent = "No photo yet";
+    const icon = site.category === "fort" ? "🏰" : site.category === "stepwell" ? "🏛️" : site.category === "textile" || site.category === "craft" ? "🧵" : "📜";
+    ph.innerHTML = `<span style="font-size:24px;margin-bottom:2px">${icon}</span><span style="font-size:10px;font-weight:700;color:#5B21B6;text-transform:uppercase;letter-spacing:0.05em">${site.category || "Heritage"}</span>`;
     ph.style.cssText =
-      "height:48px;display:flex;align-items:center;justify-content:center;background:#f3f4f6;color:#6b7280;border-radius:6px;margin-bottom:6px;font-size:12px";
+      "height:72px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#EDE9FE,#C7B3FF);border-radius:8px;margin-bottom:8px";
     root.appendChild(ph);
   }
 
@@ -88,7 +90,7 @@ function buildPopupContent(
   link.href = `/sites/${site.id}`;
   link.textContent = "Open full record →";
   link.style.cssText =
-    "display:inline-block;margin-top:8px;font-size:13px;font-weight:600;color:#92400e";
+    "display:inline-block;margin-top:8px;font-size:13px;font-weight:600;color:#5B21B6";
   link.addEventListener("click", (e) => {
     // Plain clicks use client-side navigation; modified clicks keep the browser default.
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
@@ -139,7 +141,7 @@ function buildPin(
   label.setAttribute("font-size", "11");
   label.setAttribute("font-weight", "700");
   label.setAttribute("font-family", "system-ui,sans-serif");
-  label.setAttribute("fill", "#7c2d12");
+  label.setAttribute("fill", "#5B21B6");
   svg.append(body, dot, label);
   el.appendChild(svg);
 
@@ -257,8 +259,15 @@ export default function HomePage() {
           }
         }
 
-        // Add site pins
-        for (const site of data.sites) {
+        // Filter stubs from the search/panel list but still add their map pins below
+        const cleanSites = (data.sites || []).filter(
+          (s) =>
+            !s.name_en?.toLowerCase().startsWith("untitled upload") &&
+            !s.summary_en?.includes("[STUB]"),
+        );
+
+        // Add site pins for clean sites
+        for (const site of cleanSites) {
           const pin = buildPin(site, {
             select: (id) => selectSite(id, "map"),
             hover: setHoverId,
@@ -268,7 +277,62 @@ export default function HomePage() {
             .addTo(map);
           pins.set(site.id, { marker, setRank: pin.setRank });
         }
-        setSites(data.sites);
+        setSites(cleanSites);
+
+        // Add terminal endpoint pins for journey routes.
+        // For every journey we place a small coloured dot at each end of the
+        // stored LineString. If a full site-pin already sits at that coordinate
+        // (within ~1 km) we skip it to avoid a double-marker.
+        const siteIdSet = new Set(cleanSites.map((s) => s.id));
+
+        // Build a quick lookup: siteId → [lng, lat]
+        const siteLngLat = new Map(
+          cleanSites.map((s) => [s.id, [s.lng, s.lat] as [number, number]])
+        );
+
+        function approxSame(a: [number, number], b: [number, number]): boolean {
+          // ~0.01° ≈ 1 km tolerance
+          return Math.abs(a[0] - b[0]) < 0.01 && Math.abs(a[1] - b[1]) < 0.01;
+        }
+
+        for (const j of loadedJourneys) {
+          const coords = j.routeGeojson?.coordinates;
+          if (!coords || coords.length < 2) continue;
+
+          const endpoints: [number, number][] = [
+            coords[0],
+            coords[coords.length - 1],
+          ];
+
+          for (const ep of endpoints) {
+            // Check if any real site pin is already at roughly this position
+            let hasSitePin = false;
+            for (const [sid, lnglat] of siteLngLat) {
+              if (siteIdSet.has(sid) && approxSame(ep, lnglat)) {
+                hasSitePin = true;
+                break;
+              }
+            }
+            if (hasSitePin) continue;
+
+            // Place a terminal endpoint marker
+            const termEl = document.createElement("div");
+            termEl.style.cssText = [
+              "width:16px",
+              "height:16px",
+              "border-radius:50%",
+              `background:${j.color || "#5B21B6"}`,
+              "border:3px solid #fff",
+              "box-shadow:0 2px 8px rgba(0,0,0,.45)",
+              "cursor:default",
+              "position:relative",
+              "z-index:1",
+            ].join(";");
+            new lib.Marker({ element: termEl, anchor: "center" })
+              .setLngLat(ep)
+              .addTo(map);
+          }
+        }
 
         // Add journeys route layers once map style is loaded
         const addJourneyLayers = () => {
@@ -280,7 +344,7 @@ export default function HomePage() {
               id: j.id,
               slug: j.slug,
               title: j.title,
-              color: j.color || "#b45309",
+              color: j.color || "#5B21B6",
             },
             geometry: j.routeGeojson,
           }));
@@ -333,6 +397,45 @@ export default function HomePage() {
               map.getCanvas().style.cursor = "";
             });
           }
+
+          // Fetch road geometry so routes naturally trace actual highways & roads
+          void (async () => {
+            try {
+              const roadFeatures: GeoJSON.Feature[] = await Promise.all(
+                loadedJourneys.map(async (j) => {
+                  let coords = j.routeGeojson?.coordinates;
+                  if (coords && coords.length >= 2) {
+                    coords = await getRoadRouteGeometry(coords);
+                  }
+                  return {
+                    type: "Feature" as const,
+                    properties: {
+                      id: j.id,
+                      slug: j.slug,
+                      title: j.title,
+                      color: j.color || "#5B21B6",
+                    },
+                    geometry: {
+                      type: "LineString" as const,
+                      coordinates: coords,
+                    },
+                  };
+                }),
+              );
+
+              if (!disposed && map.getSource("journeys-routes")) {
+                const src = map.getSource("journeys-routes") as unknown as {
+                  setData: (data: GeoJSON.FeatureCollection) => void;
+                };
+                src.setData({
+                  type: "FeatureCollection",
+                  features: roadFeatures,
+                });
+              }
+            } catch (err) {
+              console.warn("[page] Failed to update road geometries:", err);
+            }
+          })();
         };
 
         if (map.isStyleLoaded()) {
@@ -753,13 +856,23 @@ export default function HomePage() {
         </div>
       )}
 
+      {/* Link back to the landing / about page */}
+      <Link
+        href="/welcome"
+        className="fixed bottom-6 left-[416px] z-20 hidden items-center gap-2 rounded-full bg-white/95 px-4 py-2.5 text-sm font-semibold text-[#5B21B6] shadow-lg shadow-[#5B21B6]/15 ring-1 ring-[#C7B3FF] backdrop-blur transition hover:bg-[#EDE9FE] hover:scale-105 active:scale-95 focus-visible:outline-2 focus-visible:outline-[#8B5CF6] md:flex"
+        aria-label="About Dharohar"
+      >
+        <span aria-hidden="true">✦</span>
+        <span>About Dharohar</span>
+      </Link>
+
       {/* Floating Ask the Archive Button */}
       <Link
         href="/ask"
-        className="fixed bottom-6 right-6 z-20 flex items-center gap-2 rounded-full bg-amber-800 px-4 py-2.5 text-sm font-semibold text-white shadow-xl transition hover:bg-amber-900 hover:scale-105 active:scale-95 focus-visible:outline-2 focus-visible:outline-amber-700"
+        className="fixed bottom-6 right-6 z-20 flex items-center gap-2.5 rounded-full bg-[#5B21B6] px-5 py-3 text-sm font-semibold text-white shadow-xl shadow-[#5B21B6]/30 ring-2 ring-white/30 transition hover:bg-[#4C1D95] hover:scale-105 active:scale-95 focus-visible:outline-2 focus-visible:outline-[#8B5CF6]"
         aria-label="Ask the archive"
       >
-        <span className="text-base" role="img" aria-hidden="true">
+        <span className="text-lg leading-none" role="img" aria-hidden="true">
           📜
         </span>
         <span>Ask the Archive</span>

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Map as MapLibreMap, Marker } from "maplibre-gl";
 import { buildStyle, workerUrl } from "@/lib/map-style";
+import { getRoadRouteGeometry } from "@/lib/road-routing";
 import type { SiteDto } from "@/lib/facets";
 import type { GeneratedJourneyResponse, GeneratedStop } from "@/app/api/journeys/generate/route";
 
@@ -12,12 +13,12 @@ type MapLibre = typeof import("maplibre-gl");
 type LngLat = [number, number];
 
 const COLOR_OPTIONS = [
-  { label: "Amber Gold", hex: "#b45309" },
+  { label: "Imperial Violet", hex: "#5B21B6" },
+  { label: "Vibrant Iris", hex: "#8B5CF6" },
+  { label: "Lavender Dream", hex: "#C7B3FF" },
   { label: "Emerald Green", hex: "#047857" },
   { label: "Indigo Royal", hex: "#4338ca" },
   { label: "Crimson Rose", hex: "#be123c" },
-  { label: "Desert Teal", hex: "#0f766e" },
-  { label: "Ochre Earth", hex: "#c2410c" },
 ];
 
 const SUGGESTED_PROMPTS = [
@@ -83,7 +84,7 @@ export default function NewJourneyPage() {
   const [era, setEra] = useState("");
   const [description, setDescription] = useState("");
   const [tagsStr, setTagsStr] = useState("");
-  const [color, setColor] = useState("#b45309");
+  const [color, setColor] = useState("#5B21B6");
 
   // Route drawing states
   const [waypoints, setWaypoints] = useState<LngLat[]>([]);
@@ -155,7 +156,7 @@ export default function NewJourneyPage() {
           type: "line",
           source: "journey-draw-route",
           paint: {
-            "line-color": "#b45309",
+            "line-color": "#5B21B6",
             "line-width": 8,
             "line-opacity": 0.35,
           },
@@ -167,7 +168,7 @@ export default function NewJourneyPage() {
           type: "line",
           source: "journey-draw-route",
           paint: {
-            "line-color": "#b45309",
+            "line-color": "#5B21B6",
             "line-width": 4,
             "line-opacity": 0.95,
           },
@@ -209,6 +210,25 @@ export default function NewJourneyPage() {
           coordinates: waypoints,
         },
       });
+
+      // Snap to road path asynchronously
+      if (waypoints.length >= 2) {
+        getRoadRouteGeometry(waypoints).then((roadCoords) => {
+          if (mapRef.current?.getSource("journey-draw-route")) {
+            const src = mapRef.current.getSource("journey-draw-route") as unknown as {
+              setData: (d: GeoJSON.Feature) => void;
+            };
+            src.setData({
+              type: "Feature",
+              properties: {},
+              geometry: {
+                type: "LineString",
+                coordinates: roadCoords,
+              },
+            });
+          }
+        });
+      }
     }
 
     // Update layer colors
@@ -265,6 +285,26 @@ export default function NewJourneyPage() {
         properties: {},
         geometry: generatedPlan.route_geojson,
       });
+
+      // Snap AI route to road path
+      const planCoords = generatedPlan.route_geojson?.coordinates;
+      if (planCoords && planCoords.length >= 2) {
+        getRoadRouteGeometry(planCoords).then((roadCoords) => {
+          if (mapRef.current?.getSource("journey-draw-route")) {
+            const src = mapRef.current.getSource("journey-draw-route") as unknown as {
+              setData: (d: GeoJSON.Feature) => void;
+            };
+            src.setData({
+              type: "Feature",
+              properties: {},
+              geometry: {
+                type: "LineString",
+                coordinates: roadCoords,
+              },
+            });
+          }
+        });
+      }
     }
 
     if (map.getLayer("journey-draw-casing")) {
@@ -341,7 +381,7 @@ export default function NewJourneyPage() {
     for (const site of allSites) {
       const el = document.createElement("div");
       el.className =
-        "cursor-pointer rounded-md bg-stone-900/80 px-2 py-0.5 text-[10px] font-medium text-amber-200 shadow ring-1 ring-white/30 backdrop-blur-sm hover:bg-amber-800 hover:text-white";
+        "cursor-pointer rounded-md bg-stone-900/80 px-2 py-0.5 text-[10px] font-medium text-[#C7B3FF] shadow ring-1 ring-white/30 backdrop-blur-sm hover:bg-[#5B21B6] hover:text-white";
       el.textContent = `📍 ${site.name_en}`;
       el.title = `Click to add ${site.name_en} to this journey`;
 
@@ -538,15 +578,15 @@ export default function NewJourneyPage() {
   };
 
   return (
-    <div className="flex h-screen flex-col bg-stone-50 text-stone-900 md:flex-row">
+    <div className="flex h-screen flex-col bg-[#FAF9FF] text-[#1E1B4B] md:flex-row">
       {/* Left/Sidebar Form & Itinerary */}
-      <div className="flex flex-col border-b border-stone-200 bg-white shadow-lg md:h-full md:w-[480px] md:border-b-0 md:border-r">
+      <div className="flex flex-col border-b border-[#EDE9FE] bg-white shadow-lg md:h-full md:w-[480px] md:border-b-0 md:border-r">
         {/* Header */}
-        <div className="border-b border-stone-200 px-6 py-4">
+        <div className="border-b border-[#EDE9FE] px-6 py-4">
           <nav aria-label="Breadcrumb" className="mb-1 text-xs">
             <Link
               href="/"
-              className="font-medium text-amber-800 underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-amber-700"
+              className="font-medium text-[#5B21B6] underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-[#8B5CF6]"
             >
               ← Back to Atlas
             </Link>
@@ -589,12 +629,12 @@ export default function NewJourneyPage() {
           )}
 
           {/* AI Trip Planner Box: "Describe your trip" */}
-          <section className="rounded-xl border border-amber-200/80 bg-gradient-to-b from-amber-50/60 to-stone-50/50 p-4 shadow-sm">
+          <section className="rounded-xl border border-[#C7B3FF] bg-gradient-to-b from-[#EDE9FE]/70 to-[#FAF9FF]/60 p-4 shadow-sm">
             <div className="flex items-center gap-2">
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-800 text-[11px] text-white">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#5B21B6] text-[11px] text-white">
                 ✦
               </span>
-              <h2 className="text-xs font-bold uppercase tracking-wider text-amber-950">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-[#5B21B6]">
                 Describe your trip
               </h2>
             </div>
@@ -607,7 +647,7 @@ export default function NewJourneyPage() {
                   onChange={(e) => setPlannerPrompt(e.target.value)}
                   placeholder="e.g. 3 days of Solanki stepwells from Ahmedabad"
                   disabled={isGenerating}
-                  className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 placeholder:text-stone-400 focus:border-amber-700 focus:outline-none focus:ring-1 focus:ring-amber-700 disabled:opacity-60"
+                  className="w-full rounded-lg border border-[#C7B3FF]/60 bg-white px-3 py-2 text-sm text-stone-900 placeholder:text-stone-400 focus:border-[#5B21B6] focus:outline-none focus:ring-1 focus:ring-[#8B5CF6] disabled:opacity-60"
                 />
               </div>
 
@@ -622,7 +662,7 @@ export default function NewJourneyPage() {
                       handleGenerate(undefined, p);
                     }}
                     disabled={isGenerating}
-                    className="rounded-md border border-amber-300/60 bg-amber-100/50 px-2 py-0.5 text-[11px] text-amber-900 transition hover:bg-amber-200/70 disabled:opacity-50"
+                    className="rounded-md border border-[#C7B3FF] bg-[#EDE9FE] px-2 py-0.5 text-[11px] text-[#5B21B6] transition hover:bg-[#DDD6FE] disabled:opacity-50"
                   >
                     {p}
                   </button>
@@ -636,7 +676,7 @@ export default function NewJourneyPage() {
                 <button
                   type="submit"
                   disabled={isGenerating || plannerPrompt.trim().length < 3}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-amber-800 px-4 py-2 text-xs font-semibold text-white shadow transition hover:bg-amber-900 focus-visible:outline-2 focus-visible:outline-amber-800 disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#5B21B6] px-4 py-2 text-xs font-semibold text-white shadow transition hover:bg-[#4C1D95] focus-visible:outline-2 focus-visible:outline-[#8B5CF6] disabled:opacity-50"
                 >
                   {isGenerating ? (
                     <>
@@ -706,12 +746,12 @@ export default function NewJourneyPage() {
 
           {/* Empty State */}
           {generatedPlan?.empty && (
-            <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-xs text-amber-900">
+            <div className="rounded-xl border border-[#C7B3FF] bg-[#EDE9FE] p-4 text-xs text-[#5B21B6]">
               <div className="flex items-center gap-2 font-semibold">
                 <span>🔍</span>
                 <span>No matching sites yet, try a broader theme</span>
               </div>
-              <p className="mt-1 leading-relaxed text-amber-800">
+              <p className="mt-1 leading-relaxed text-[#5B21B6]/80">
                 We couldn&apos;t find published records matching this query within
                 the target area. Try broader keywords like &quot;stepwells&quot;, &quot;forts&quot;,
                 or &quot;Gujarat crafts&quot;.
@@ -723,13 +763,13 @@ export default function NewJourneyPage() {
           {generatedPlan && !generatedPlan.empty && generatedPlan.days.length > 0 && (
             <div className="space-y-4">
               {/* Itinerary Header & Overview */}
-              <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-4">
+              <div className="rounded-xl border border-[#EDE9FE] bg-[#FAF9FF] p-4">
                 <div className="flex items-start justify-between gap-2">
                   <h2 className="font-serif text-lg font-bold text-stone-900">
                     {generatedPlan.title}
                   </h2>
                   {generatedPlan.flagged && (
-                    <span className="shrink-0 rounded-full bg-stone-200 px-2 py-0.5 text-[10px] font-medium text-stone-700">
+                    <span className="shrink-0 rounded-full bg-[#EDE9FE] px-2 py-0.5 text-[10px] font-medium text-[#5B21B6]">
                       Standard blurbs
                     </span>
                   )}
@@ -740,8 +780,8 @@ export default function NewJourneyPage() {
                 </p>
 
                 {/* Distance & Routing Stats */}
-                <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-stone-200 pt-3 text-xs">
-                  <span className="font-bold text-amber-900">
+                <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-[#EDE9FE] pt-3 text-xs">
+                  <span className="font-bold text-[#5B21B6]">
                     {generatedPlan.total_km} km total
                   </span>
                   <span className="text-stone-300">•</span>
@@ -749,7 +789,7 @@ export default function NewJourneyPage() {
                     {generatedPlan.days.reduce((acc, d) => acc + d.stops.length, 0)} stops
                   </span>
                   <span className="text-stone-300">•</span>
-                  <span className="inline-flex items-center gap-1 rounded bg-stone-200/80 px-1.5 py-0.5 text-[10px] font-medium text-stone-600">
+                  <span className="inline-flex items-center gap-1 rounded bg-[#EDE9FE] px-1.5 py-0.5 text-[10px] font-medium text-[#5B21B6]">
                     Approximate straight-line route
                   </span>
                 </div>
@@ -760,14 +800,14 @@ export default function NewJourneyPage() {
                     type="button"
                     onClick={handleSaveGeneratedJourney}
                     disabled={savingGenerated}
-                    className="flex-1 rounded-lg bg-amber-800 py-2.5 text-xs font-semibold text-white shadow transition hover:bg-amber-900 disabled:opacity-50"
+                    className="flex-1 rounded-lg bg-[#5B21B6] py-2.5 text-xs font-semibold text-white shadow transition hover:bg-[#4C1D95] disabled:opacity-50"
                   >
                     {savingGenerated ? "Saving Journey..." : "Save Journey to Atlas"}
                   </button>
                   <button
                     type="button"
                     onClick={handleCustomizeInManualBuilder}
-                    className="rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-xs font-medium text-stone-700 shadow-sm hover:bg-stone-50"
+                    className="rounded-lg border border-[#C7B3FF]/60 bg-white px-3 py-2.5 text-xs font-medium text-stone-700 shadow-sm hover:bg-[#EDE9FE]/50"
                   >
                     Edit Route
                   </button>
@@ -779,9 +819,9 @@ export default function NewJourneyPage() {
                 {generatedPlan.days.map((day) => (
                   <div
                     key={day.day}
-                    className="rounded-xl border border-stone-200 bg-white p-3.5 shadow-sm"
+                    className="rounded-xl border border-[#EDE9FE] bg-white p-3.5 shadow-sm"
                   >
-                    <div className="mb-2 flex items-center justify-between border-b border-stone-100 pb-2">
+                    <div className="mb-2 flex items-center justify-between border-b border-[#EDE9FE] pb-2">
                       <span className="font-serif text-sm font-bold text-stone-900">
                         Day {day.day}
                       </span>
@@ -799,8 +839,8 @@ export default function NewJourneyPage() {
                             onClick={() => handleFlyToStop(stop)}
                             className={`cursor-pointer rounded-lg border p-2.5 transition ${
                               isSelected
-                                ? "border-amber-600 bg-amber-50/70 shadow-sm ring-1 ring-amber-600"
-                                : "border-stone-200 hover:border-stone-300 hover:bg-stone-50"
+                                ? "border-[#5B21B6] bg-[#EDE9FE]/70 shadow-sm ring-1 ring-[#5B21B6]"
+                                : "border-stone-200 hover:border-[#8B5CF6] hover:bg-[#FAF9FF]"
                             }`}
                           >
                             <div className="flex items-start justify-between gap-2">
@@ -867,7 +907,7 @@ export default function NewJourneyPage() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. Solanki Stepwell & Temple Corridor"
-                  className="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-900 placeholder:text-stone-400 focus:border-amber-700 focus:outline-none focus:ring-1 focus:ring-amber-700"
+                  className="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-900 placeholder:text-stone-400 focus:border-[#5B21B6] focus:outline-none focus:ring-1 focus:ring-[#8B5CF6]"
                 />
               </div>
 
@@ -884,7 +924,7 @@ export default function NewJourneyPage() {
                       setSlugTouched(true);
                       setSlug(e.target.value);
                     }}
-                    className="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-900 placeholder:text-stone-400 focus:border-amber-700 focus:outline-none focus:ring-1 focus:ring-amber-700"
+                    className="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-900 placeholder:text-stone-400 focus:border-[#5B21B6] focus:outline-none focus:ring-1 focus:ring-[#8B5CF6]"
                   />
                 </div>
                 <div>
@@ -896,7 +936,7 @@ export default function NewJourneyPage() {
                     value={era}
                     onChange={(e) => setEra(e.target.value)}
                     placeholder="e.g. 11th-13th century"
-                    className="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-900 placeholder:text-stone-400 focus:border-amber-700 focus:outline-none focus:ring-1 focus:ring-amber-700"
+                    className="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-900 placeholder:text-stone-400 focus:border-[#5B21B6] focus:outline-none focus:ring-1 focus:ring-[#8B5CF6]"
                   />
                 </div>
               </div>
@@ -914,8 +954,8 @@ export default function NewJourneyPage() {
                       aria-label={c.label}
                       className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition ${
                         color === c.hex
-                          ? "border-stone-900 bg-stone-900 text-white shadow"
-                          : "border-stone-300 bg-white text-stone-700 hover:border-stone-400"
+                          ? "border-[#5B21B6] bg-[#5B21B6] text-white shadow"
+                          : "border-stone-300 bg-white text-stone-700 hover:border-[#8B5CF6]"
                       }`}
                     >
                       <span
@@ -937,7 +977,7 @@ export default function NewJourneyPage() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Tell the story of this travel route, dynasty history, or architectural connection..."
-                  className="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-900 placeholder:text-stone-400 focus:border-amber-700 focus:outline-none focus:ring-1 focus:ring-amber-700"
+                  className="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-900 placeholder:text-stone-400 focus:border-[#5B21B6] focus:outline-none focus:ring-1 focus:ring-[#8B5CF6]"
                 />
               </div>
 
@@ -950,17 +990,17 @@ export default function NewJourneyPage() {
                   value={tagsStr}
                   onChange={(e) => setTagsStr(e.target.value)}
                   placeholder="stepwell, unesco, solanki, pilgrim-route"
-                  className="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-900 placeholder:text-stone-400 focus:border-amber-700 focus:outline-none focus:ring-1 focus:ring-amber-700"
+                  className="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-900 placeholder:text-stone-400 focus:border-[#5B21B6] focus:outline-none focus:ring-1 focus:ring-[#8B5CF6]"
                 />
               </div>
 
               {/* Waypoints & Distance Summary */}
-              <div className="rounded-xl border border-stone-200 bg-stone-50 p-4">
+              <div className="rounded-xl border border-[#EDE9FE] bg-[#FAF9FF] p-4">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold uppercase tracking-wider text-stone-700">
                     Waypoints Plotted: {waypoints.length}
                   </span>
-                  <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-bold text-amber-900">
+                  <span className="rounded-full bg-[#EDE9FE] px-2 py-0.5 text-xs font-bold text-[#5B21B6]">
                     {manualDistanceKm} km total
                   </span>
                 </div>
@@ -1014,7 +1054,7 @@ export default function NewJourneyPage() {
               <button
                 type="submit"
                 disabled={submitting || waypoints.length < 2}
-                className="w-full rounded-lg bg-amber-800 py-3 text-sm font-semibold text-white shadow transition hover:bg-amber-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-800 disabled:opacity-50"
+                className="w-full rounded-lg bg-[#5B21B6] py-3 text-sm font-semibold text-white shadow transition hover:bg-[#4C1D95] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8B5CF6] disabled:opacity-50"
               >
                 {submitting ? "Publishing Journey..." : "Publish Journey Route"}
               </button>
@@ -1029,7 +1069,7 @@ export default function NewJourneyPage() {
 
         {/* Floating Drawing Helper Hint */}
         <div className="pointer-events-none absolute left-4 top-4 z-10 max-w-sm rounded-lg bg-stone-900/85 p-3 text-xs text-white shadow-xl backdrop-blur-md">
-          <p className="font-semibold text-amber-400">
+          <p className="font-semibold text-[#C7B3FF]">
             {generatedPlan ? "Itinerary mapped" : "Journey Route Planner"}
           </p>
           <p className="mt-1 leading-relaxed text-stone-200">

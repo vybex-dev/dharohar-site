@@ -17,9 +17,9 @@ export default function RootError({
   return (
     <div
       role="alert"
-      className="flex min-h-screen flex-col items-center justify-center bg-stone-50 px-6 py-12 text-center text-stone-900"
+      className="flex min-h-screen flex-col items-center justify-center bg-[#FAF9FF] px-6 py-12 text-center text-stone-900"
     >
-      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-amber-100 text-2xl text-amber-800 shadow-inner">
+      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#EDE9FE] text-2xl text-[#5B21B6] shadow-inner">
         ⚠️
       </div>
       <h1 className="mt-4 font-serif text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl">
@@ -44,7 +44,7 @@ export default function RootError({
         </button>
         <Link
           href="/"
-          className="rounded-lg bg-amber-800 px-5 py-2.5 text-sm font-semibold text-white shadow hover:bg-amber-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-800"
+          className="rounded-lg bg-[#5B21B6] px-5 py-2.5 text-sm font-semibold text-white shadow hover:bg-[#4C1D95] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8B5CF6]"
         >
           Return to Heritage Map
         </Link>

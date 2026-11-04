@@ -308,253 +308,316 @@ export default function UploadPage() {
           : 0;
 
   return (
-    <main className="mx-auto min-h-dvh max-w-lg p-4 pb-16">
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Add a heritage record</h1>
-        <Link href="/" className="text-sm text-blue-700 underline">
-          Map
-        </Link>
-      </div>
-
-      <form onSubmit={onSubmit} className="space-y-4">
-        <div className="grid grid-cols-2 gap-3">
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => cameraRef.current?.click()}
-            className="rounded-lg bg-amber-700 px-4 py-3 text-base font-medium text-white disabled:opacity-50"
+    <div className="min-h-screen bg-[#FAF9FF] text-[#1E1B4B] py-8 px-4 sm:px-6">
+      <main className="mx-auto max-w-xl">
+        {/* Header Breadcrumb */}
+        <div className="mb-6 flex items-center justify-between">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-[#5B21B6] underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-[#8B5CF6]"
           >
-            Take photo
-          </button>
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => fileRef.current?.click()}
-            className="rounded-lg border border-gray-400 px-4 py-3 text-base font-medium disabled:opacity-50"
-          >
-            Choose file
-          </button>
+            ← Back to Atlas Map
+          </Link>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#C7B3FF] bg-[#EDE9FE] px-3 py-1 text-xs font-semibold text-[#5B21B6]">
+            ✦ Ingestion Studio
+          </span>
         </div>
 
-        <input
-          ref={cameraRef}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          className="hidden"
-          onChange={onPick}
-        />
-        <input
-          ref={fileRef}
-          type="file"
-          accept={ALLOWED_MIME_TYPES.join(",")}
-          className="hidden"
-          onChange={onPick}
-        />
-
-        {file && (
-          <div className="flex items-center gap-3 rounded-lg border border-gray-300 p-3">
-            {previewUrl && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={previewUrl}
-                alt="Selected file preview"
-                className="h-16 w-16 rounded object-cover"
-              />
-            )}
-            <div className="min-w-0 text-sm">
-              <div className="truncate font-medium">{file.name}</div>
-              <div className="text-gray-600">
-                {file.type || "unknown type"} ·{" "}
-                {(file.size / 1048576).toFixed(2)} MB
-              </div>
-            </div>
-          </div>
-        )}
-
-        <label className="block">
-          <span className="text-sm font-medium">This is a</span>
-          <select
-            value={kind}
-            disabled={busy || file?.type === "application/pdf"}
-            onChange={(e) => setKind(e.target.value as "photo" | "scan" | "pano")}
-            className="mt-1 w-full rounded-lg border border-gray-400 bg-white px-3 py-3 text-base text-black"
-          >
-            <option value="photo">Photo of a site or object</option>
-            <option value="pano">360° Panorama (equirectangular)</option>
-            <option value="scan">Scanned document</option>
-          </select>
-          {detectedPano && (
-            <div className="mt-2 flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-900">
-              <span className="text-base">✨</span>
-              <span>
-                Detected <strong>360° equirectangular panorama</strong> (2:1 aspect ratio). Marked as kind=pano.
-              </span>
-            </div>
-          )}
-        </label>
-
-        <label className="block">
-          <span className="text-sm font-medium">Title (optional)</span>
-          <input
-            value={title}
-            maxLength={200}
-            disabled={busy}
-            onChange={(e) => setTitle(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-gray-400 bg-white px-3 py-3 text-base text-black"
-            placeholder="e.g. Stepwell near Adalaj"
-          />
-        </label>
-
-        <label className="block">
-          <span className="text-sm font-medium">Notes (optional)</span>
-          <textarea
-            value={notes}
-            maxLength={2000}
-            rows={3}
-            disabled={busy}
-            onChange={(e) => setNotes(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-gray-400 bg-white px-3 py-3 text-base text-black"
-            placeholder="Anything you know about it"
-          />
-        </label>
-
-        <button
-          type="submit"
-          disabled={!file || busy || phase === "done"}
-          className="w-full rounded-lg bg-black px-4 py-3 text-base font-medium text-white disabled:opacity-40"
-        >
-          {phase === "requesting"
-            ? "Preparing…"
-            : phase === "uploading"
-              ? "Uploading…"
-              : phase === "processing"
-                ? "Processing…"
-                : "Upload"}
-        </button>
-      </form>
-
-      {phase !== "idle" && (
-        <section className="mt-6 space-y-3">
-          <div className="h-3 w-full overflow-hidden rounded bg-gray-200">
-            <div
-              className={`h-full transition-all duration-300 ${phase === "error" ? "bg-red-500" : "bg-green-600"}`}
-              style={{ width: `${pct}%` }}
-            />
+        {/* Studio Card Container */}
+        <div className="rounded-2xl border border-[#C7B3FF]/80 bg-white p-6 shadow-xl shadow-[#5B21B6]/5 sm:p-8">
+          <div>
+            <h1 className="font-serif text-2xl font-bold tracking-tight text-[#1E1B4B] sm:text-3xl">
+              Add a Heritage Record
+            </h1>
+            <p className="mt-1 text-xs leading-relaxed text-stone-600 sm:text-sm">
+              Upload photographs, epigraphs, or 360° panoramas. Our automated pipeline transcribes, geocodes, and connects records to the living atlas.
+            </p>
           </div>
 
-          {job && (
-            <p className="text-xs text-gray-500">
-              Attempt {job.attempts}/{job.max_attempts} on this stage
-            </p>
-          )}
-
-          <ol className="space-y-1.5 text-sm">
-            {STAGES.map((s, i) => {
-              const done = phase === "done" || i < currentIdx;
-              const active = phase === "processing" && i === currentIdx;
-              const lastForStage = [...log]
-                .reverse()
-                .find((l) => l.stage === s);
-              return (
-                <li key={s}>
-                  <div
-                    className={
-                      done
-                        ? "text-green-700"
-                        : active
-                          ? "font-medium"
-                          : "text-gray-500"
-                    }
-                  >
-                    {done ? "✓" : active ? "…" : "○"} {STAGE_LABELS[s]}
-                    {done && lastForStage?.ok && lastForStage.provider && (
-                      <span className="ml-2 text-xs font-normal text-gray-500">
-                        {lastForStage.provider}
-                        {lastForStage.model ? `/${lastForStage.model}` : ""}
-                      </span>
-                    )}
-                  </div>
-                  {lastForStage && !lastForStage.ok && (
-                    <div className="ml-5 text-xs text-amber-700">
-                      {lastForStage.error}
-                    </div>
-                  )}
-                </li>
-              );
-            })}
-          </ol>
-
-          {warning && phase === "processing" && (
-            <p className="rounded bg-yellow-100 p-2 text-sm text-yellow-900">
-              Retrying after an error: {warning}
-            </p>
-          )}
-
-          {phase === "done" && (
-            <div
-              className={`space-y-2 rounded-lg p-3 ${
-                publishInfo?.published === false
-                  ? "bg-amber-100 text-amber-900"
-                  : "bg-green-100 text-green-900"
-              }`}
-            >
-              {publishInfo?.published === false ? (
-                <>
-                  <p className="font-medium">Saved, but not on the map yet.</p>
-                  <p className="text-sm">
-                    {publishInfo.reason ??
-                      "It needs a location before it can be published."}
-                  </p>
-                </>
-              ) : (
-                <p className="font-medium">
-                  Published. Your record is on the map.
-                </p>
-              )}
-              <div className="flex gap-4 text-sm">
-                {publishInfo?.published !== false && (
-                  <Link
-                    href={job?.site_id ? `/?site=${job.site_id}` : "/"}
-                    className="font-medium underline"
-                  >
-                    View on map
-                  </Link>
-                )}
-                <button type="button" onClick={reset} className="underline">
-                  Upload another
-                </button>
-              </div>
-            </div>
-          )}
-        </section>
-      )}
-
-      {error && (
-        <div
-          role="alert"
-          className="mt-4 rounded-lg bg-red-100 p-3 text-sm text-red-900"
-        >
-          {error}
-          <div className="mt-2 flex gap-4">
-            {phase === "error" && job?.status === "failed" && (
+          <form onSubmit={onSubmit} className="mt-6 space-y-5">
+            {/* Action Buttons: Take Photo / Choose File */}
+            <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
-                disabled={retrying}
-                onClick={onRetry}
-                className="underline disabled:opacity-50"
+                disabled={busy}
+                onClick={() => cameraRef.current?.click()}
+                className="flex items-center justify-center gap-2 rounded-xl bg-[#5B21B6] px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#4C1D95] focus-visible:outline-2 focus-visible:outline-[#8B5CF6] disabled:opacity-50"
               >
-                {retrying ? "Retrying…" : "Retry"}
+                <span>📷</span>
+                <span>Take Photo</span>
               </button>
-            )}
-            {phase === "error" && (
-              <button type="button" onClick={reset} className="underline">
-                Start over
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => fileRef.current?.click()}
+                className="flex items-center justify-center gap-2 rounded-xl border border-[#C7B3FF] bg-[#EDE9FE]/40 px-4 py-3 text-sm font-semibold text-[#5B21B6] transition hover:bg-[#EDE9FE] focus-visible:outline-2 focus-visible:outline-[#8B5CF6] disabled:opacity-50"
+              >
+                <span>📁</span>
+                <span>Choose File</span>
               </button>
+            </div>
+
+            <input
+              ref={cameraRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="hidden"
+              onChange={onPick}
+            />
+            <input
+              ref={fileRef}
+              type="file"
+              accept={ALLOWED_MIME_TYPES.join(",")}
+              className="hidden"
+              onChange={onPick}
+            />
+
+            {/* Selected File Card Preview */}
+            {file && (
+              <div className="flex items-center gap-3.5 rounded-xl border border-[#C7B3FF] bg-[#FAF9FF] p-3 shadow-xs">
+                {previewUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={previewUrl}
+                    alt="Selected file preview"
+                    className="h-16 w-16 shrink-0 rounded-lg object-cover ring-1 ring-[#C7B3FF]"
+                  />
+                ) : (
+                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-[#EDE9FE] text-2xl text-[#5B21B6]">
+                    📄
+                  </div>
+                )}
+                <div className="min-w-0 flex-1 text-xs">
+                  <div className="truncate font-semibold text-[#1E1B4B] sm:text-sm">
+                    {file.name}
+                  </div>
+                  <div className="mt-0.5 text-stone-500">
+                    {file.type || "Document"} · {(file.size / 1048576).toFixed(2)} MB
+                  </div>
+                  <div className="mt-1 text-[11px] font-medium text-[#5B21B6]">
+                    Ready for ingestion
+                  </div>
+                </div>
+              </div>
             )}
-          </div>
+
+            {/* Kind Selector with Visual Segmented Style */}
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-stone-700">
+                Record Type
+              </label>
+              <select
+                value={kind}
+                disabled={busy || file?.type === "application/pdf"}
+                onChange={(e) => setKind(e.target.value as "photo" | "scan" | "pano")}
+                className="mt-1.5 w-full rounded-xl border border-[#C7B3FF]/80 bg-[#FAF9FF] px-3.5 py-2.5 text-sm font-medium text-[#1E1B4B] focus:border-[#5B21B6] focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]/20 disabled:opacity-50"
+              >
+                <option value="photo">🏛️ Photo of a site, craft or artifact</option>
+                <option value="pano">🌐 360° Equirectangular Panorama</option>
+                <option value="scan">📜 Scanned Manuscript / Inscription</option>
+              </select>
+
+              {detectedPano && (
+                <div className="mt-2.5 flex items-center gap-2 rounded-xl border border-[#C7B3FF] bg-[#EDE9FE] px-3.5 py-2 text-xs font-semibold text-[#5B21B6]">
+                  <span className="text-base">✨</span>
+                  <span>
+                    Detected <strong>360° equirectangular panorama</strong> (2:1 aspect ratio). Marked as kind=pano.
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Title Input */}
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-stone-700">
+                Title <span className="font-normal normal-case text-stone-400">(optional)</span>
+              </label>
+              <input
+                value={title}
+                maxLength={200}
+                disabled={busy}
+                onChange={(e) => setTitle(e.target.value)}
+                className="mt-1.5 w-full rounded-xl border border-[#C7B3FF]/80 bg-[#FAF9FF] px-3.5 py-2.5 text-sm text-[#1E1B4B] placeholder:text-stone-400 focus:border-[#5B21B6] focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]/20 disabled:opacity-50"
+                placeholder="e.g. Adalaj Stepwell Inscription or Patan Silk Loom"
+              />
+            </div>
+
+            {/* Notes Textarea */}
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-stone-700">
+                Archivist &amp; Field Notes <span className="font-normal normal-case text-stone-400">(optional)</span>
+              </label>
+              <textarea
+                value={notes}
+                maxLength={2000}
+                rows={3}
+                disabled={busy}
+                onChange={(e) => setNotes(e.target.value)}
+                className="mt-1.5 w-full rounded-xl border border-[#C7B3FF]/80 bg-[#FAF9FF] px-3.5 py-2.5 text-sm leading-relaxed text-[#1E1B4B] placeholder:text-stone-400 focus:border-[#5B21B6] focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]/20 disabled:opacity-50"
+                placeholder="Known folklore, dynasty context, local dialect name, or specific architectural features..."
+              />
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={!file || busy || phase === "done"}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#5B21B6] py-3 text-sm font-semibold text-white shadow-lg shadow-[#5B21B6]/20 transition hover:bg-[#4C1D95] focus-visible:outline-2 focus-visible:outline-[#8B5CF6] disabled:opacity-40"
+            >
+              {phase === "requesting"
+                ? "Preparing ingestion…"
+                : phase === "uploading"
+                  ? "Uploading asset to storage…"
+                  : phase === "processing"
+                    ? "Executing AI pipeline…"
+                    : "Upload & Ingest Record"}
+            </button>
+          </form>
+
+          {/* Pipeline Progress Section */}
+          {phase !== "idle" && (
+            <section className="mt-8 border-t border-[#EDE9FE] pt-6 space-y-4">
+              <div>
+                <div className="flex items-center justify-between text-xs font-semibold">
+                  <span className="text-[#5B21B6]">Pipeline Ingestion Progress</span>
+                  <span className="text-stone-600">{Math.round(pct)}%</span>
+                </div>
+                <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-[#EDE9FE]">
+                  <div
+                    className={`h-full transition-all duration-300 ${
+                      phase === "error" ? "bg-red-500" : "bg-[#5B21B6]"
+                    }`}
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+              </div>
+
+              {job && (
+                <p className="text-[11px] text-stone-500">
+                  Attempt {job.attempts}/{job.max_attempts} on current pipeline stage
+                </p>
+              )}
+
+              <ol className="space-y-2 text-xs">
+                {STAGES.map((s, i) => {
+                  const done = phase === "done" || i < currentIdx;
+                  const active = phase === "processing" && i === currentIdx;
+                  const lastForStage = [...log]
+                    .reverse()
+                    .find((l) => l.stage === s);
+                  return (
+                    <li key={s} className="flex items-center justify-between">
+                      <div
+                        className={`flex items-center gap-2 ${
+                          done
+                            ? "font-medium text-emerald-700"
+                            : active
+                              ? "font-semibold text-[#5B21B6]"
+                              : "text-stone-400"
+                        }`}
+                      >
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full text-[10px]">
+                          {done ? "✓" : active ? "⏳" : "○"}
+                        </span>
+                        <span>{STAGE_LABELS[s]}</span>
+                        {done && lastForStage?.ok && lastForStage.provider && (
+                          <span className="rounded bg-[#EDE9FE] px-1.5 py-0.5 text-[10px] text-[#5B21B6]">
+                            {lastForStage.provider}
+                            {lastForStage.model ? `/${lastForStage.model}` : ""}
+                          </span>
+                        )}
+                      </div>
+                      {lastForStage && !lastForStage.ok && (
+                        <span className="text-xs text-red-600">
+                          {lastForStage.error}
+                        </span>
+                      )}
+                    </li>
+                  );
+                })}
+              </ol>
+
+              {warning && phase === "processing" && (
+                <p className="rounded-xl bg-amber-50 p-2.5 text-xs text-amber-900 border border-amber-200">
+                  Retrying after an error: {warning}
+                </p>
+              )}
+
+              {phase === "done" && (
+                <div
+                  className={`space-y-3 rounded-xl p-4 ${
+                    publishInfo?.published === false
+                      ? "bg-[#EDE9FE] text-[#5B21B6] border border-[#C7B3FF]"
+                      : "bg-emerald-50 text-emerald-900 border border-emerald-200"
+                  }`}
+                >
+                  {publishInfo?.published === false ? (
+                    <>
+                      <p className="font-semibold">Saved to review queue</p>
+                      <p className="text-xs leading-relaxed">
+                        {publishInfo.reason ??
+                          "It needs a verified map location before public atlas publishing."}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="font-semibold text-sm">
+                      ✨ Published successfully! Your record is now live on the heritage atlas.
+                    </p>
+                  )}
+                  <div className="flex items-center gap-4 text-xs font-semibold pt-1">
+                    {publishInfo?.published !== false && (
+                      <Link
+                        href={job?.site_id ? `/?site=${job.site_id}` : "/"}
+                        className="rounded-lg bg-[#5B21B6] px-3.5 py-1.5 text-white hover:bg-[#4C1D95]"
+                      >
+                        View on Map →
+                      </Link>
+                    )}
+                    <button
+                      type="button"
+                      onClick={reset}
+                      className="rounded-lg border border-current px-3 py-1.5 hover:opacity-80"
+                    >
+                      Upload Another
+                    </button>
+                  </div>
+                </div>
+              )}
+            </section>
+          )}
+
+          {error && (
+            <div
+              role="alert"
+              className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-xs text-red-900"
+            >
+              <div className="font-semibold">Upload failed: {error}</div>
+              <div className="mt-3 flex gap-3">
+                {phase === "error" && job?.status === "failed" && (
+                  <button
+                    type="button"
+                    disabled={retrying}
+                    onClick={onRetry}
+                    className="rounded-md bg-red-800 px-3 py-1.5 text-white disabled:opacity-50"
+                  >
+                    {retrying ? "Retrying…" : "Retry"}
+                  </button>
+                )}
+                {phase === "error" && (
+                  <button
+                    type="button"
+                    onClick={reset}
+                    className="rounded-md border border-red-300 bg-white px-3 py-1.5 text-red-800"
+                  >
+                    Start Over
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
         </div>
-      )}
-    </main>
+      </main>
+    </div>
   );
 }

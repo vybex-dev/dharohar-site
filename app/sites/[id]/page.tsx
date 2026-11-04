@@ -16,7 +16,7 @@ import {
 // live in <SiteContent>, under Suspense. The shell (back link, skeleton) prerenders.
 export default function SitePage(props: PageProps<"/sites/[id]">) {
   return (
-    <div className="min-h-screen bg-stone-50 text-stone-900">
+    <div className="min-h-screen bg-[#FAF9FF] text-[#1E1B4B]">
       <div className="mx-auto max-w-6xl px-4 pb-16 pt-5 sm:px-6">
         <Suspense fallback={<PageSkeleton />}>
           <SiteContent params={props.params} />
@@ -38,7 +38,7 @@ async function SiteContent({ params }: { params: Promise<{ id: string }> }) {
       <nav aria-label="Breadcrumb" className="mb-4 text-sm">
         <Link
           href={`/?site=${site.id}`}
-          className="font-medium text-amber-800 underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-amber-700"
+          className="font-medium text-[#5B21B6] underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-[#8B5CF6]"
         >
           ← Back to the map
         </Link>
@@ -68,8 +68,8 @@ async function SiteContent({ params }: { params: Promise<{ id: string }> }) {
                 {site.summary_en}
               </p>
               {site.folklore_notes && (
-                <aside className="mt-4 max-w-[68ch] rounded-lg border-l-4 border-amber-600 bg-amber-50 px-4 py-3">
-                  <h3 className="text-xs font-semibold uppercase tracking-wide text-amber-900">
+                <aside className="mt-4 max-w-[68ch] rounded-lg border-l-4 border-[#8B5CF6] bg-[#EDE9FE] px-4 py-3">
+                  <h3 className="text-xs font-semibold uppercase tracking-wide text-[#5B21B6]">
                     Folklore &amp; oral tradition
                   </h3>
                   <p className="mt-1 text-sm leading-relaxed text-stone-800">
@@ -118,11 +118,11 @@ function Header({ site }: { site: SiteInfo }) {
   return (
     <header>
       <div className="flex flex-wrap items-center gap-2 text-xs">
-        <span className="rounded-full bg-amber-700 px-2.5 py-1 font-semibold uppercase tracking-wide text-white">
+        <span className="rounded-full bg-[#5B21B6] px-2.5 py-1 font-semibold uppercase tracking-wide text-white">
           {categoryLabel(site.category)}
         </span>
         {site.period && (
-          <span className="rounded-full bg-white px-2.5 py-1 text-stone-700 ring-1 ring-stone-300">
+          <span className="rounded-full bg-white px-2.5 py-1 text-stone-700 ring-1 ring-[#C7B3FF]">
             {site.period}
           </span>
         )}
@@ -142,13 +142,18 @@ function Header({ site }: { site: SiteInfo }) {
 
 function NoPhotos() {
   return (
-    <div className="flex aspect-[16/7] flex-col items-center justify-center rounded-xl border border-dashed border-stone-300 bg-white text-center">
-      <p className="text-sm font-medium text-stone-700">No photographs yet</p>
+    <div className="flex aspect-[16/7] flex-col items-center justify-center rounded-2xl border border-dashed border-[#C7B3FF] bg-gradient-to-br from-[#EDE9FE]/40 to-white text-center p-6">
+      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#EDE9FE] text-2xl text-[#5B21B6]">
+        📷
+      </div>
+      <p className="mt-2 text-sm font-semibold text-stone-800">Visual archive documentation underway</p>
+      <p className="mt-1 text-xs text-stone-500 max-w-sm">Have field photographs, architectural elevations, or 360° captures of this site?</p>
       <Link
         href="/upload"
-        className="mt-1 text-sm text-amber-800 underline underline-offset-2"
+        className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-[#5B21B6] px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-[#4C1D95]"
       >
-        Contribute one
+        <span>+</span>
+        <span>Contribute Photograph</span>
       </Link>
     </div>
   );
@@ -193,10 +198,22 @@ function SourceTexts({ documents }: { documents: SourceDoc[] }) {
   const withText = documents.filter((d) => d.ocrText || d.textEn);
   if (withText.length === 0) {
     return (
-      <Section id="sources" title="Source text">
-        <p className="rounded-lg bg-white p-4 text-sm text-stone-600 ring-1 ring-stone-200">
-          No source documents have been attached to this record.
-        </p>
+      <Section id="sources" title="Source text &amp; epigraphy">
+        <div className="rounded-xl border border-[#C7B3FF]/60 bg-gradient-to-br from-[#EDE9FE]/50 to-white p-5 text-sm shadow-xs">
+          <div className="flex items-center gap-2 font-semibold text-[#5B21B6]">
+            <span>📜</span>
+            <span>Archival epigraph cataloging in progress</span>
+          </div>
+          <p className="mt-1.5 text-xs leading-relaxed text-stone-600">
+            Primary stone inscriptions and manuscript records for this site are being transcribed by the epigraphy team.
+          </p>
+          <Link
+            href="/upload"
+            className="mt-3 inline-flex items-center gap-1 rounded-lg bg-[#5B21B6] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#4C1D95]"
+          >
+            + Upload Historical Text
+          </Link>
+        </div>
       </Section>
     );
   }
@@ -227,9 +244,9 @@ function SourceCard({
   return (
     <div
       id={`source-${doc.id}`}
-      className="scroll-mt-20 overflow-hidden rounded-xl bg-white ring-1 ring-stone-200 transition target:ring-2 target:ring-amber-600 target:shadow-lg"
+      className="scroll-mt-20 overflow-hidden rounded-xl bg-white ring-1 ring-[#C7B3FF]/60 transition target:ring-2 target:ring-[#8B5CF6] target:shadow-lg"
     >
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-stone-200 bg-stone-50 px-4 py-2 text-xs text-stone-600">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-[#EDE9FE] bg-[#FAF9FF] px-4 py-2 text-xs text-stone-600">
         <span className="font-semibold text-stone-800">
           {doc.kind === "scan" ? "Scanned document" : "Photographed text"}
           {total > 1 ? ` ${index} of ${total}` : ""}
@@ -245,7 +262,7 @@ function SourceCard({
             href={doc.fileUrl}
             target="_blank"
             rel="noreferrer"
-            className="ml-auto font-medium text-amber-800 underline-offset-2 hover:underline"
+            className="ml-auto font-medium text-[#5B21B6] underline-offset-2 hover:underline"
           >
             {doc.isPdf ? "Open PDF ↗" : "View original ↗"}
           </a>
@@ -301,7 +318,7 @@ function TextPane({
         tabIndex={0}
         role="region"
         aria-label={label}
-        className={`mt-2 max-h-96 overflow-y-auto whitespace-pre-wrap break-words leading-relaxed text-stone-900 focus-visible:outline-2 focus-visible:outline-amber-700 ${
+        className={`mt-2 max-h-96 overflow-y-auto whitespace-pre-wrap break-words leading-relaxed text-stone-900 focus-visible:outline-2 focus-visible:outline-[#8B5CF6] ${
           large ? "text-[17px]" : "text-[15px]"
         }`}
       >
@@ -351,7 +368,7 @@ function Confidence({
     return (
       <span
         title="Extracted with low confidence. Verify against the source."
-        className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-900 ring-1 ring-amber-300"
+        className="rounded-full bg-[#EDE9FE] px-2 py-0.5 text-[10px] font-semibold text-[#5B21B6] ring-1 ring-[#C7B3FF]"
       >
         Needs review
       </span>
@@ -448,7 +465,7 @@ function Related({ related }: { related: RelatedSite[] }) {
           <li key={r.id}>
             <Link
               href={`/sites/${r.id}`}
-              className="group flex h-full gap-3 rounded-xl bg-white p-3 ring-1 ring-stone-200 transition hover:ring-amber-600 focus-visible:outline-2 focus-visible:outline-amber-700"
+              className="group flex h-full gap-3 rounded-xl bg-white p-3 ring-1 ring-stone-200 transition hover:ring-[#8B5CF6] focus-visible:outline-2 focus-visible:outline-[#8B5CF6]"
             >
               <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-stone-100">
                 {r.thumbnail ? (
@@ -466,7 +483,7 @@ function Related({ related }: { related: RelatedSite[] }) {
                 )}
               </div>
               <div className="min-w-0">
-                <div className="truncate font-semibold text-stone-900 group-hover:text-amber-900">
+                <div className="truncate font-semibold text-stone-900 group-hover:text-[#5B21B6]">
                   {r.name}
                 </div>
                 <div className="truncate text-xs text-stone-600">
@@ -480,7 +497,7 @@ function Related({ related }: { related: RelatedSite[] }) {
                 {r.basis === "embedding" && (
                   <span
                     title="Cosine similarity between record embeddings"
-                    className="mt-1.5 inline-block rounded-full bg-indigo-50 px-2 py-0.5 text-[11px] font-medium text-indigo-900 ring-1 ring-indigo-200"
+                    className="mt-1.5 inline-block rounded-full bg-[#EDE9FE] px-2 py-0.5 text-[11px] font-medium text-[#5B21B6] ring-1 ring-[#C7B3FF]"
                   >
                     ≈ {Math.round(r.similarity * 100)}% similar
                   </span>

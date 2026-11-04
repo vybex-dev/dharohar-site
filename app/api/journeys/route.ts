@@ -45,7 +45,7 @@ const CreateJourneySchema = z.object({
   color: z
     .string()
     .regex(/^#[0-9a-fA-F]{6}$/, "Color must be a 6-digit hex code")
-    .default("#b45309"),
+    .default("#5B21B6"),
   coordinates: z
     .array(
       z.tuple([
@@ -156,7 +156,7 @@ export async function GET() {
         description: r.description ?? null,
         era: r.era ?? null,
         tags: r.tags ?? [],
-        color: r.color ?? "#b45309",
+        color: r.color ?? "#5B21B6",
         distanceKm: Number(r.distance_km ?? 0),
         siteIds: r.site_ids ?? [],
         stops: orderedStops,

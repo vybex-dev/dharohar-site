@@ -1,17 +1,22 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-  /* Noto Indic fonts loaded via Google Fonts in layout.tsx */
-  --font-noto-indic: "Noto Sans Devanagari", "Noto Sans Gujarati";
+@theme {
+  --color-primary: #5B21B6;
+  --color-accent: #8B5CF6;
+  --color-secondary: #C7B3FF;
+  --color-surface: #EDE9FE;
+  --color-page-bg: #FAF9FF;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --background: #FAF9FF;
+  --foreground: #1E1B4B;
+  --primary: #5B21B6;
+  --accent: #8B5CF6;
+  --secondary: #C7B3FF;
+  --surface: #EDE9FE;
+  /* Noto Indic fonts loaded via Google Fonts in layout.tsx */
+  --font-noto-indic: "Noto Sans Devanagari", "Noto Sans Gujarati";
 }
 
 body {
@@ -38,12 +43,12 @@ body {
 .dh-marker svg {
   display: block;
   overflow: visible;
-  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.35));
+  filter: drop-shadow(0 2px 6px rgba(91, 33, 182, 0.45));
   transform-origin: 50% 100%;
   transition: transform 0.12s ease-out;
 }
 .dh-marker .dh-pin-body {
-  fill: #b45309;
+  fill: #5B21B6;
 }
 .dh-marker[data-state="hover"] svg {
   transform: scale(1.15);
@@ -52,10 +57,10 @@ body {
   transform: scale(1.3);
 }
 .dh-marker[data-state="active"] .dh-pin-body {
-  fill: #7c2d12;
+  fill: #3B0764;
 }
 .dh-marker:focus-visible {
-  outline: 2px solid #1d4ed8;
+  outline: 2px solid #8B5CF6;
   outline-offset: 2px;
   border-radius: 6px;
 }

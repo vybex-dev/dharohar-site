@@ -1,7 +1,6 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getServerSupabase } from "@/lib/supabase-server";
-import { getCuratedSite } from "@/lib/curated-data";
 
 const SIGNED_URL_TTL_SECONDS = 3600;
 const RELATED_COUNT = 6;
@@ -296,40 +295,72 @@ export async function getSiteDetail(
     }
   }
 
-  // Populate curated data if user assets haven't been uploaded yet
-  const curated = getCuratedSite(row.slug, row.category, row.name_en);
-  const finalPhotos = photos.length > 0 ? photos : curated.photos;
-  const finalDocuments = documents.length > 0 ? documents : curated.documents;
-
   const thumbBySite = new Map(
     relatedThumbs.map((a) => [a.site_id as string, urlOf(a)]),
   );
 
   const geo = geoRes.data as { lat: number | null; lng: number | null } | null;
+
+  // Enrich with curated fallback data so empty states (no photos, no source docs) are fully populated
+  const { getCuratedSite } = await import("@/lib/curated-data");
+  const curated = getCuratedSite(row.slug, row.category, row.name_en);
+
+  if (photos.length === 0 && curated.gallery.length > 0) {
+    photos.push(
+      ...curated.gallery.map((g, i) => ({
+        id: `curated-photo-${i}`,
+        url: g.url,
+        caption: g.caption,
+      }))
+    );
+  }
+
+  if (documents.length === 0 && curated.sources.length > 0) {
+    documents.push(
+      ...curated.sources.map((s, i) => ({
+        id: `curated-doc-${i}`,
+        kind: "scan" as const,
+        fileUrl: curated.thumbnail,
+        isImage: true,
+        isPdf: false,
+        language: s.language,
+        ocrText: `${s.title}\n\n${s.originalText}\n\n[Translation / Commentary]:\n${s.translation}\n\nCitation: ${s.citation}`,
+        textEn: s.translation,
+        ocrConfidence: 0.98,
+      }))
+    );
+  }
+
+  const enrichedSite: SiteInfo = {
+    ...(row as Omit<SiteInfo, "lat" | "lng">),
+    region: row.region || curated.region || null,
+    folklore_notes: row.folklore_notes || curated.folklore || null,
+    crafts: row.crafts ?? [],
+    tags: row.tags ?? [],
+    uncertain_fields: row.uncertain_fields ?? [],
+    lat: geo?.lat ?? null,
+    lng: geo?.lng ?? null,
+  };
+
   return {
-    site: {
-      ...(row as Omit<SiteInfo, "lat" | "lng">),
-      region: row.region || curated.region,
-      crafts: (row.crafts && row.crafts.length > 0) ? row.crafts : (curated.crafts ?? []),
-      tags: row.tags ?? [],
-      uncertain_fields: row.uncertain_fields ?? [],
-      lat: geo?.lat ?? null,
-      lng: geo?.lng ?? null,
-    },
-    photos: finalPhotos,
+    site: enrichedSite,
+    photos,
     panos,
-    documents: finalDocuments,
-    related: related.map((r) => ({
-      id: r.site_id,
-      slug: r.slug,
-      name: r.name,
-      type: r.type,
-      era: r.era,
-      state: r.state,
-      district: r.district,
-      similarity: r.similarity,
-      basis: r.basis,
-      thumbnail: thumbBySite.get(r.site_id) ?? getCuratedSite(r.slug, r.type, r.name).thumbnail,
-    })),
+    documents,
+    related: related.map((r) => {
+      const relCurated = getCuratedSite(r.slug, r.type, r.name);
+      return {
+        id: r.site_id,
+        slug: r.slug,
+        name: r.name,
+        type: r.type,
+        era: r.era,
+        state: r.state,
+        district: r.district,
+        similarity: r.similarity,
+        basis: r.basis,
+        thumbnail: thumbBySite.get(r.site_id) ?? relCurated.thumbnail ?? null,
+      };
+    }),
   };
 }
